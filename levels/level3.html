@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Level 03: Favorite Melodies & Warm Hugs | Panda's Birthday Odyssey</title>
+  <title>Level 03: Favorite Melodies & Warm Hugs | Panda's Vinyl Mixtape</title>
   <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐼</text></svg>">
 
   <!-- Luxe Google Fonts -->
@@ -11,50 +11,905 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600;700&family=Playfair+Display:ital,wght@0,500;0,600;0,700;0,800;1,400&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
+  <!-- Main Luxe Panda Stylesheet -->
   <link rel="stylesheet" href="../css/style.css">
 
-  <!-- Direct URL Guard -->
+  <!-- Direct URL Guard (Executes immediately) -->
   <script src="../js/lockManager.js"></script>
   <script>
+    // Enforce URL Guard for Level 3: redirects to ../index.html if locked & not in preview mode
     PandaLock.guardLevel(3);
   </script>
 </head>
 <body>
+  <!-- Ambient Particles Canvas -->
   <canvas id="particleCanvas"></canvas>
 
   <div class="level-page-container">
+    
+    <!-- Top Bar Navigation -->
     <nav class="level-top-nav">
-      <a href="../index.html" class="back-to-map-btn">
+      <a href="../index.html" class="back-to-map-btn" id="backToMapLink">
         <span>←</span>
         <span>Back to Countdown Map</span>
       </a>
-      <span class="card-day-badge">Day 3 of 5</span>
+
+      <div style="display: flex; align-items: center; gap: 0.8rem;">
+        <button class="sound-toggle-btn" id="soundToggleBtn" type="button" aria-label="Toggle Sound">
+          <span id="soundIcon">🔊</span>
+          <span id="soundLabel">Sound On</span>
+        </button>
+        <span class="card-day-badge">DAY 3 — LEVEL 03</span>
+      </div>
     </nav>
 
-    <main class="level-content-card">
+    <!-- Header Section -->
+    <header class="level-content-card" style="padding: 2.2rem 1.8rem 1.8rem; margin-bottom: 2rem;">
       <div class="card-panda-ears">
         <div class="card-ear card-ear-left"></div>
         <div class="card-ear card-ear-right"></div>
       </div>
 
-      <div class="level-badge-pill">✨ Level 03 Unlocked ✨</div>
+      <div class="level-badge-pill">✨ Dec 03 Milestone • Golden Mixtape ✨</div>
       <h1 class="level-heading">Favorite Melodies & Warm Hugs</h1>
-      <p class="level-script-sub">A mixtape of heartbeats & dreams...</p>
+      <p class="level-script-sub">A mixtape of late-night talks & good vibes</p>
+      
+      <p style="color: var(--panda-muted); max-width: 540px; margin: 0 auto; font-size: 0.95rem; line-height: 1.6;">
+        Welcome to Panda's custom vinyl jukebox! Select any track to spin the golden turntable, watch the tonearm drop, and flip the liner notes to uncover sweet bestie memories.
+      </p>
+    </header>
 
-      <div class="level-preview-notice">
-        <p>🐾 <strong>Welcome to Day 3, Panda!</strong></p>
-        <p style="margin-top: 0.6rem; color: #6B6875;">
-          The soundtrack of our days! Phase 2 will feature our interactive music player and cozy letters.
-        </p>
+    <!-- Luxury Panda Turntable Component -->
+    <section class="turntable-card" id="turntableSection">
+      
+      <div class="turntable-deck">
+        <!-- Vinyl Platter Area -->
+        <div class="platter-area">
+          <div class="platter-base"></div>
+
+          <!-- Vinyl Record -->
+          <div class="vinyl-record" id="vinylRecord" title="Click to Play / Pause Vinyl">
+            <!-- Center Label -->
+            <div class="vinyl-center-label">
+              <span class="vinyl-label-title" id="vinylSideLabel">SIDE A • 33 RPM</span>
+              <span class="vinyl-label-icon">🐼</span>
+              <span style="font-size: 0.58rem; color: #FFF; font-weight: 600; letter-spacing: 0.05em;">PANDA'S MIX</span>
+              <div class="vinyl-center-spindle"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tonearm Assembly -->
+        <div class="tonearm-assembly">
+          <div class="tonearm-pivot"></div>
+          <div class="tonearm-rod" id="tonearmRod">
+            <div class="tonearm-headshell"></div>
+          </div>
+        </div>
       </div>
 
-      <div style="margin-top: 2.5rem;">
-        <a href="../index.html" class="card-action-btn btn-unlocked" style="max-width: 280px; margin: 0 auto;">
-          <span>Return to Map</span>
-        </a>
+      <!-- Control & Display Panel -->
+      <div class="turntable-controls-panel">
+        
+        <!-- Now Playing Pill -->
+        <div class="now-playing-pill" id="nowPlayingPill">
+          <span class="now-playing-dot" id="playbackDot"></span>
+          <span id="nowPlayingText">Ready to Spin: Select a track below 🎵</span>
+        </div>
+
+        <!-- Soundwave Visualizer Bars -->
+        <div class="soundwave-visualizer" id="soundwaveVisualizer" aria-hidden="true">
+          <div class="soundwave-bar"></div>
+          <div class="soundwave-bar"></div>
+          <div class="soundwave-bar"></div>
+          <div class="soundwave-bar"></div>
+          <div class="soundwave-bar"></div>
+          <div class="soundwave-bar"></div>
+          <div class="soundwave-bar"></div>
+          <div class="soundwave-bar"></div>
+          <div class="soundwave-bar"></div>
+          <div class="soundwave-bar"></div>
+          <div class="soundwave-bar"></div>
+          <div class="soundwave-bar"></div>
+          <div class="soundwave-bar"></div>
+          <div class="soundwave-bar"></div>
+          <div class="soundwave-bar"></div>
+          <div class="soundwave-bar"></div>
+        </div>
+
+        <!-- Transport Buttons -->
+        <div class="turntable-transport-btns">
+          <button class="transport-btn" id="prevTrackBtn" type="button" title="Previous Track" aria-label="Previous Track">
+            <span>⏮</span>
+          </button>
+
+          <button class="transport-btn btn-play-main" id="mainPlayPauseBtn" type="button" title="Play / Pause Vinyl" aria-label="Play / Pause">
+            <span id="mainPlayIcon">▶</span>
+          </button>
+
+          <button class="transport-btn" id="nextTrackBtn" type="button" title="Next Track" aria-label="Next Track">
+            <span>⏭</span>
+          </button>
+        </div>
+
       </div>
-    </main>
+    </section>
+
+    <!-- 4-Track Bestie Mixtape Grid Section -->
+    <section class="mixtape-section">
+      <div class="mixtape-header-row">
+        <h2 class="mixtape-section-title">The Bestie Tracklist</h2>
+        <div class="mixtape-progress-badge" id="exploredBadge">
+          Explored: 0 / 4 Tracks 🎵
+        </div>
+      </div>
+
+      <div class="mixtape-grid">
+        
+        <!-- Track 1 Card -->
+        <div class="track-card-wrapper" id="trackCard-1" data-track="1">
+          <div class="track-card-inner">
+            
+            <!-- Front Face -->
+            <div class="track-card-front">
+              <div class="track-card-top">
+                <span class="track-num-badge">Track 01 • Side A</span>
+                <span class="track-mood-tag">🚗 Road Trip Hype</span>
+              </div>
+
+              <div>
+                <h3 class="track-title">[EDIT HERE: The Road Trip Hype Song]</h3>
+                <p class="track-artist">[EDIT HERE: Artist Name / Band]</p>
+              </div>
+
+              <div class="track-actions-row">
+                <button class="btn-play-track" type="button" onclick="TurntableApp.playTrack(1)">
+                  <span>▶ Play on Vinyl</span>
+                </button>
+                <button class="btn-flip-liner" type="button" onclick="TurntableApp.flipCard(1)">
+                  <span>💌 Liner Note ↺</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Back Face (Liner Note) -->
+            <div class="track-card-back">
+              <div class="liner-note-header">
+                <span>Liner Notes • Track 01 Dedication</span>
+              </div>
+              <p class="liner-note-text">
+                [EDIT HERE: "Remember when we blasted this on repeat with the car windows rolled down screaming every single lyric? This song is scientifically proven to fix any bad mood instantly." 🎶✨]
+              </p>
+              <button class="btn-flip-liner" style="align-self: flex-end;" type="button" onclick="TurntableApp.flipCard(1)">
+                <span>← Back to Track</span>
+              </button>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Track 2 Card -->
+        <div class="track-card-wrapper" id="trackCard-2" data-track="2">
+          <div class="track-card-inner">
+            
+            <!-- Front Face -->
+            <div class="track-card-front">
+              <div class="track-card-top">
+                <span class="track-num-badge">Track 02 • Side A</span>
+                <span class="track-mood-tag">🌙 2 AM Deep Talks</span>
+              </div>
+
+              <div>
+                <h3 class="track-title">[EDIT HERE: The 2 AM Deep Talk Anthem]</h3>
+                <p class="track-artist">[EDIT HERE: Artist Name / Band]</p>
+              </div>
+
+              <div class="track-actions-row">
+                <button class="btn-play-track" type="button" onclick="TurntableApp.playTrack(2)">
+                  <span>▶ Play on Vinyl</span>
+                </button>
+                <button class="btn-flip-liner" type="button" onclick="TurntableApp.flipCard(2)">
+                  <span>💌 Liner Note ↺</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Back Face (Liner Note) -->
+            <div class="track-card-back">
+              <div class="liner-note-header">
+                <span>Liner Notes • Track 02 Dedication</span>
+              </div>
+              <p class="liner-note-text">
+                [EDIT HERE: "The official soundtrack to our late-night existential debriefs and brain rot conversations where we solve all of life's problems while half-asleep." 🛋️☕]
+              </p>
+              <button class="btn-flip-liner" style="align-self: flex-end;" type="button" onclick="TurntableApp.flipCard(2)">
+                <span>← Back to Track</span>
+              </button>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Track 3 Card -->
+        <div class="track-card-wrapper" id="trackCard-3" data-track="3">
+          <div class="track-card-inner">
+            
+            <!-- Front Face -->
+            <div class="track-card-front">
+              <div class="track-card-top">
+                <span class="track-num-badge">Track 03 • Side B</span>
+                <span class="track-mood-tag">💃 Kitchen Dance Party</span>
+              </div>
+
+              <div>
+                <h3 class="track-title">[EDIT HERE: The Unhinged Kitchen Dance Beat]</h3>
+                <p class="track-artist">[EDIT HERE: Artist Name / Band]</p>
+              </div>
+
+              <div class="track-actions-row">
+                <button class="btn-play-track" type="button" onclick="TurntableApp.playTrack(3)">
+                  <span>▶ Play on Vinyl</span>
+                </button>
+                <button class="btn-flip-liner" type="button" onclick="TurntableApp.flipCard(3)">
+                  <span>💌 Liner Note ↺</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Back Face (Liner Note) -->
+            <div class="track-card-back">
+              <div class="liner-note-header">
+                <span>Liner Notes • Track 03 Dedication</span>
+              </div>
+              <p class="liner-note-text">
+                [EDIT HERE: "Zero rhythm, maximum confidence. Proof that when we are in the same room, normal behavior is completely impossible." 🍳🥞]
+              </p>
+              <button class="btn-flip-liner" style="align-self: flex-end;" type="button" onclick="TurntableApp.flipCard(3)">
+                <span>← Back to Track</span>
+              </button>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Track 4 Card -->
+        <div class="track-card-wrapper" id="trackCard-4" data-track="4">
+          <div class="track-card-inner">
+            
+            <!-- Front Face -->
+            <div class="track-card-front">
+              <div class="track-card-top">
+                <span class="track-num-badge">Track 04 • Side B</span>
+                <span class="track-mood-tag">💖 Forever Bestie Theme</span>
+              </div>
+
+              <div>
+                <h3 class="track-title">[EDIT HERE: The Forever Bestie Theme]</h3>
+                <p class="track-artist">[EDIT HERE: Artist Name / Band]</p>
+              </div>
+
+              <div class="track-actions-row">
+                <button class="btn-play-track" type="button" onclick="TurntableApp.playTrack(4)">
+                  <span>▶ Play on Vinyl</span>
+                </button>
+                <button class="btn-flip-liner" type="button" onclick="TurntableApp.flipCard(4)">
+                  <span>💌 Liner Note ↺</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Back Face (Liner Note) -->
+            <div class="track-card-back">
+              <div class="liner-note-header">
+                <span>Liner Notes • Track 04 Dedication</span>
+              </div>
+              <p class="liner-note-text">
+                [EDIT HERE: "Because no matter where life takes us or how busy things get, you will always be my favorite person to laugh with. Here is to a million more memories!" 🐼⭐]
+              </p>
+              <button class="btn-flip-liner" style="align-self: flex-end;" type="button" onclick="TurntableApp.flipCard(4)">
+                <span>← Back to Track</span>
+              </button>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- Mixtape Completion Reward Card (Unlocked after exploring 4 tracks) -->
+    <section class="mixtape-complete-reward" id="completionRewardCard">
+      <div class="reward-trophy-badge">🏆</div>
+      <div class="level-badge-pill">✨ Day 3 Mixtape Fully Explored ✨</div>
+      <h2 class="reward-banner-title">Mixtape Certified Legendary!</h2>
+      <p class="reward-banner-sub">All 4 tracks spun on the golden turntable</p>
+
+      <p style="color: var(--panda-charcoal); max-width: 500px; margin: 1rem auto 1.5rem; font-size: 0.95rem; line-height: 1.6;">
+        You've explored every melody and liner note in Panda's Day 3 vinyl collection! Day 4 ("The Eve of Wonders") unlocks tomorrow at midnight.
+      </p>
+
+      <div>
+        <button class="btn-complete-level" id="completeDay3Btn" type="button">
+          <span>Complete Day 3 & Return to Map</span>
+          <span>✨</span>
+        </button>
+      </div>
+    </section>
+
   </div>
+
+  <!-- Audio Element for local audio files -->
+  <audio id="localAudioPlayer" preload="auto"></audio>
+
+  <!-- Toast Container -->
+  <div class="panda-toast-container"></div>
+
+  <!-- Turntable & Audio Engine Script -->
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      // 1. Web Audio API Sound Effects & Lo-Fi Synthesis Engine
+      const SoundFX = (function () {
+        let audioCtx = null;
+        let isMuted = false;
+
+        function getAudioContext() {
+          if (!audioCtx) {
+            const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+            if (AudioContextClass) {
+              audioCtx = new AudioContextClass();
+            }
+          }
+          if (audioCtx && audioCtx.state === 'suspended') {
+            audioCtx.resume();
+          }
+          return audioCtx;
+        }
+
+        // Welcome Chime (Page Opens): D4 -> F#4 -> A4 -> D5
+        function playWelcomeChime() {
+          if (isMuted) return;
+          const ctx = getAudioContext();
+          if (!ctx) return;
+
+          const now = ctx.currentTime;
+          const notes = [
+            { f: 293.66, t: 0.0, d: 0.38 },  // D4
+            { f: 369.99, t: 0.12, d: 0.4 },  // F#4
+            { f: 440.00, t: 0.24, d: 0.42 }, // A4
+            { f: 587.33, t: 0.38, d: 0.75 }  // D5 (held bell)
+          ];
+
+          notes.forEach(n => {
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(n.f, now + n.t);
+
+            gain.gain.setValueAtTime(0, now + n.t);
+            gain.gain.linearRampToValueAtTime(0.18, now + n.t + 0.02);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + n.t + n.d);
+
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.start(now + n.t);
+            osc.stop(now + n.t + n.d);
+          });
+        }
+
+        // Vinyl Needle-Drop Crackle & Warm Tone
+        function playNeedleDrop() {
+          if (isMuted) return;
+          const ctx = getAudioContext();
+          if (!ctx) return;
+
+          const now = ctx.currentTime;
+
+          // 1. Initial mechanical "thud / pop" when needle lands
+          const popOsc = ctx.createOscillator();
+          const popGain = ctx.createGain();
+          popOsc.type = 'triangle';
+          popOsc.frequency.setValueAtTime(95, now);
+          popOsc.frequency.exponentialRampToValueAtTime(35, now + 0.08);
+
+          popGain.gain.setValueAtTime(0.22, now);
+          popGain.gain.exponentialRampToValueAtTime(0.001, now + 0.08);
+
+          popOsc.connect(popGain);
+          popGain.connect(ctx.destination);
+          popOsc.start(now);
+          popOsc.stop(now + 0.08);
+
+          // 2. Realistic crackle noise burst
+          const bufferSize = ctx.sampleRate * 0.25; // 250ms
+          const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+          const data = buffer.getChannelData(0);
+
+          for (let i = 0; i < bufferSize; i++) {
+            // Random tiny clicks
+            const isClick = Math.random() < 0.04;
+            data[i] = isClick ? (Math.random() * 2 - 1) * 0.7 : (Math.random() * 2 - 1) * 0.06;
+          }
+
+          const noise = ctx.createBufferSource();
+          noise.buffer = buffer;
+
+          const filter = ctx.createBiquadFilter();
+          filter.type = 'bandpass';
+          filter.frequency.setValueAtTime(1400, now);
+          filter.Q.setValueAtTime(1.2, now);
+
+          const noiseGain = ctx.createGain();
+          noiseGain.gain.setValueAtTime(0.16, now);
+          noiseGain.gain.exponentialRampToValueAtTime(0.001, now + 0.25);
+
+          noise.connect(filter);
+          filter.connect(noiseGain);
+          noiseGain.connect(ctx.destination);
+
+          noise.start(now);
+        }
+
+        // Celebratory Completion Fanfare (All 4 Tracks Explored)
+        function playCompletionFanfare() {
+          if (isMuted) return;
+          const ctx = getAudioContext();
+          if (!ctx) return;
+
+          const now = ctx.currentTime;
+          const fanfare = [
+            { f: 523.25, t: 0.0, d: 0.18 },  // C5
+            { f: 659.25, t: 0.12, d: 0.18 }, // E5
+            { f: 783.99, t: 0.24, d: 0.22 }, // G5
+            { f: 1046.50, t: 0.38, d: 0.8 }  // C6 (lead chime)
+          ];
+
+          fanfare.forEach(n => {
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(n.f, now + n.t);
+
+            gain.gain.setValueAtTime(0, now + n.t);
+            gain.gain.linearRampToValueAtTime(0.2, now + n.t + 0.02);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + n.t + n.d);
+
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.start(now + n.t);
+            osc.stop(now + n.t + n.d);
+          });
+
+          // Gold Shimmer Chord (C-E-G)
+          const chord = [523.25, 659.25, 783.99];
+          chord.forEach(freq => {
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(freq, now + 0.38);
+            gain.gain.setValueAtTime(0, now + 0.38);
+            gain.gain.linearRampToValueAtTime(0.09, now + 0.42);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + 1.25);
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.start(now + 0.38);
+            osc.stop(now + 1.25);
+          });
+        }
+
+        function toggleMute() {
+          isMuted = !isMuted;
+          return isMuted;
+        }
+
+        function getMuted() {
+          return isMuted;
+        }
+
+        return {
+          getAudioContext,
+          playWelcomeChime,
+          playNeedleDrop,
+          playCompletionFanfare,
+          toggleMute,
+          getMuted
+        };
+      })();
+
+      // 2. Synthesized Lo-Fi Fallback Music Loops for 4 Distinct Tracks
+      const SynthMixtape = (function () {
+        let currentLoopTimer = null;
+        let masterGain = null;
+        let isPlaying = false;
+        let activeTrackId = null;
+
+        function initSynth() {
+          const ctx = SoundFX.getAudioContext();
+          if (!ctx) return;
+          if (!masterGain) {
+            masterGain = ctx.createGain();
+            masterGain.gain.setValueAtTime(0.18, ctx.currentTime);
+            masterGain.connect(ctx.destination);
+          }
+        }
+
+        // Track 1 Pattern: Upbeat Sunny Acoustic / Celesta (C Major / F Major)
+        function getTrack1Pattern() {
+          return [
+            { f: 523.25, t: 0.0, d: 0.5, osc: 'sine', g: 0.12 },   // C5
+            { f: 659.25, t: 0.25, d: 0.4, osc: 'triangle', g: 0.1 }, // E5
+            { f: 783.99, t: 0.5, d: 0.4, osc: 'sine', g: 0.1 },     // G5
+            { f: 1046.50, t: 0.75, d: 0.6, osc: 'sine', g: 0.11 }, // C6
+            { f: 880.00, t: 1.2, d: 0.5, osc: 'triangle', g: 0.1 },  // A5
+            { f: 783.99, t: 1.5, d: 0.5, osc: 'sine', g: 0.09 },   // G5
+            { f: 659.25, t: 2.0, d: 0.6, osc: 'triangle', g: 0.1 },  // E5
+            { f: 523.25, t: 2.5, d: 0.5, osc: 'sine', g: 0.1 },    // C5
+            { f: 440.00, t: 3.0, d: 0.6, osc: 'triangle', g: 0.1 },  // A4
+            { f: 523.25, t: 3.5, d: 0.6, osc: 'sine', g: 0.1 }     // C5
+          ];
+        }
+
+        // Track 2 Pattern: Nostalgic Lo-Fi Warm Synth Chords (A Minor / D Minor)
+        function getTrack2Pattern() {
+          return [
+            { f: 440.00, t: 0.0, d: 0.7, osc: 'sine', g: 0.11 },   // A4
+            { f: 523.25, t: 0.3, d: 0.5, osc: 'triangle', g: 0.09 }, // C5
+            { f: 659.25, t: 0.6, d: 0.6, osc: 'sine', g: 0.1 },    // E5
+            { f: 587.33, t: 1.2, d: 0.7, osc: 'sine', g: 0.1 },    // D5
+            { f: 698.46, t: 1.5, d: 0.5, osc: 'triangle', g: 0.09 }, // F5
+            { f: 880.00, t: 1.8, d: 0.7, osc: 'sine', g: 0.11 },   // A5
+            { f: 783.99, t: 2.5, d: 0.6, osc: 'triangle', g: 0.09 }, // G5
+            { f: 659.25, t: 3.0, d: 0.6, osc: 'sine', g: 0.1 },    // E5
+            { f: 523.25, t: 3.5, d: 0.7, osc: 'sine', g: 0.09 }    // C5
+          ];
+        }
+
+        // Track 3 Pattern: Bubbly Playful Groove (G Major / E Minor)
+        function getTrack3Pattern() {
+          return [
+            { f: 392.00, t: 0.0, d: 0.4, osc: 'triangle', g: 0.11 }, // G4
+            { f: 493.88, t: 0.2, d: 0.3, osc: 'sine', g: 0.1 },    // B4
+            { f: 587.33, t: 0.4, d: 0.4, osc: 'triangle', g: 0.1 }, // D5
+            { f: 783.99, t: 0.6, d: 0.5, osc: 'sine', g: 0.12 },   // G5
+            { f: 659.25, t: 1.0, d: 0.4, osc: 'sine', g: 0.1 },    // E5
+            { f: 587.33, t: 1.3, d: 0.4, osc: 'triangle', g: 0.09 }, // D5
+            { f: 493.88, t: 1.6, d: 0.4, osc: 'sine', g: 0.1 },    // B4
+            { f: 587.33, t: 2.0, d: 0.5, osc: 'triangle', g: 0.1 }, // D5
+            { f: 783.99, t: 2.5, d: 0.6, osc: 'sine', g: 0.12 },   // G5
+            { f: 880.00, t: 3.0, d: 0.5, osc: 'triangle', g: 0.11 }, // A5
+            { f: 783.99, t: 3.4, d: 0.6, osc: 'sine', g: 0.1 }     // G5
+          ];
+        }
+
+        // Track 4 Pattern: Sparkling Golden Bell Lullaby (D Major / A Major)
+        function getTrack4Pattern() {
+          return [
+            { f: 587.33, t: 0.0, d: 0.6, osc: 'sine', g: 0.11 },   // D5
+            { f: 739.99, t: 0.25, d: 0.4, osc: 'triangle', g: 0.09 }, // F#5
+            { f: 880.00, t: 0.5, d: 0.5, osc: 'sine', g: 0.1 },    // A5
+            { f: 1174.66, t: 0.8, d: 0.7, osc: 'triangle', g: 0.12 }, // D6
+            { f: 987.77, t: 1.4, d: 0.5, osc: 'sine', g: 0.1 },    // B5
+            { f: 880.00, t: 1.8, d: 0.6, osc: 'sine', g: 0.1 },    // A5
+            { f: 739.99, t: 2.4, d: 0.5, osc: 'triangle', g: 0.09 }, // F#5
+            { f: 587.33, t: 2.8, d: 0.6, osc: 'sine', g: 0.1 },    // D5
+            { f: 659.25, t: 3.2, d: 0.5, osc: 'triangle', g: 0.09 }, // E5
+            { f: 587.33, t: 3.6, d: 0.7, osc: 'sine', g: 0.1 }     // D5
+          ];
+        }
+
+        function playLoopStep(trackId) {
+          if (!isPlaying || SoundFX.getMuted()) return;
+          const ctx = SoundFX.getAudioContext();
+          if (!ctx || ctx.state !== 'running') return;
+
+          initSynth();
+
+          let pattern = getTrack1Pattern();
+          if (trackId === 2) pattern = getTrack2Pattern();
+          else if (trackId === 3) pattern = getTrack3Pattern();
+          else if (trackId === 4) pattern = getTrack4Pattern();
+
+          const now = ctx.currentTime;
+          pattern.forEach(n => {
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.type = n.osc;
+            osc.frequency.setValueAtTime(n.f, now + n.t);
+
+            gain.gain.setValueAtTime(0, now + n.t);
+            gain.gain.linearRampToValueAtTime(n.g, now + n.t + 0.02);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + n.t + n.d);
+
+            osc.connect(gain);
+            gain.connect(masterGain);
+            osc.start(now + n.t);
+            osc.stop(now + n.t + n.d);
+          });
+        }
+
+        function playTrackSynth(trackId) {
+          stop();
+          activeTrackId = trackId;
+          isPlaying = true;
+          initSynth();
+          playLoopStep(trackId);
+
+          if (currentLoopTimer) clearInterval(currentLoopTimer);
+          currentLoopTimer = setInterval(() => {
+            if (isPlaying && !SoundFX.getMuted()) {
+              playLoopStep(activeTrackId);
+            }
+          }, 4200);
+        }
+
+        function stop() {
+          isPlaying = false;
+          if (currentLoopTimer) {
+            clearInterval(currentLoopTimer);
+            currentLoopTimer = null;
+          }
+        }
+
+        return {
+          playTrackSynth,
+          stop
+        };
+      })();
+
+      // 3. Main Turntable Controller
+      const TurntableApp = (function () {
+        const audioEl = document.getElementById('localAudioPlayer');
+        const vinylRecord = document.getElementById('vinylRecord');
+        const tonearmRod = document.getElementById('tonearmRod');
+        const visualizer = document.getElementById('soundwaveVisualizer');
+        const nowPlayingText = document.getElementById('nowPlayingText');
+        const playbackDot = document.getElementById('playbackDot');
+        const mainPlayIcon = document.getElementById('mainPlayIcon');
+        const exploredBadge = document.getElementById('exploredBadge');
+        const completionRewardCard = document.getElementById('completionRewardCard');
+
+        const TRACKS = [
+          {
+            id: 1,
+            title: '[EDIT HERE: The Road Trip Hype Song]',
+            artist: '[EDIT HERE: Artist Name / Band]',
+            side: 'SIDE A • 33 RPM',
+            src: '../assets/track1.mp3'
+          },
+          {
+            id: 2,
+            title: '[EDIT HERE: The 2 AM Deep Talk Anthem]',
+            artist: '[EDIT HERE: Artist Name / Band]',
+            side: 'SIDE A • 33 RPM',
+            src: '../assets/track2.mp3'
+          },
+          {
+            id: 3,
+            title: '[EDIT HERE: The Unhinged Kitchen Dance Beat]',
+            artist: '[EDIT HERE: Artist Name / Band]',
+            side: 'SIDE B • 33 RPM',
+            src: '../assets/track3.mp3'
+          },
+          {
+            id: 4,
+            title: '[EDIT HERE: The Forever Bestie Theme]',
+            artist: '[EDIT HERE: Artist Name / Band]',
+            side: 'SIDE B • 33 RPM',
+            src: '../assets/track4.mp3'
+          }
+        ];
+
+        let currentTrackId = 1;
+        let isPlaying = false;
+        let exploredTracks = new Set();
+        let usingSynthFallback = false;
+
+        // Check if level was previously completed
+        if (PandaLock.isLevelCompleted(3)) {
+          exploredTracks = new Set([1, 2, 3, 4]);
+          updateExploredUI();
+          completionRewardCard.classList.add('is-unlocked');
+        }
+
+        function playTrack(trackId) {
+          currentTrackId = trackId;
+          const track = TRACKS.find(t => t.id === trackId);
+          if (!track) return;
+
+          // Sound effect: Vinyl needle drop crackle
+          SoundFX.playNeedleDrop();
+
+          // Mark explored
+          exploredTracks.add(trackId);
+          updateExploredUI();
+
+          // Highlight Active Card
+          document.querySelectorAll('.track-card-wrapper').forEach(card => {
+            const cardId = parseInt(card.getAttribute('data-track'), 10);
+            if (cardId === trackId) {
+              card.classList.add('is-active-track');
+            } else {
+              card.classList.remove('is-active-track');
+            }
+          });
+
+          // Set Turntable Label
+          document.getElementById('vinylSideLabel').textContent = track.side;
+          nowPlayingText.innerHTML = `Playing: <strong>${track.title}</strong> — ${track.artist}`;
+          playbackDot.style.background = '#10B981';
+
+          // Engage Tonearm and Vinyl Spin
+          tonearmRod.classList.add('on-record');
+          vinylRecord.classList.remove('is-paused');
+          vinylRecord.classList.add('is-spinning');
+          visualizer.classList.add('is-active');
+          mainPlayIcon.textContent = '⏸';
+          isPlaying = true;
+
+          // Attempt HTML Audio play; if missing, engage Lo-Fi Synth loop
+          if (audioEl) {
+            audioEl.src = track.src;
+            audioEl.volume = 0.28;
+            const playPromise = audioEl.play();
+            if (playPromise !== undefined) {
+              playPromise.then(() => {
+                usingSynthFallback = false;
+                SynthMixtape.stop();
+              }).catch(() => {
+                // Audio file missing or blocked -> use Web Audio synth fallback!
+                usingSynthFallback = true;
+                SynthMixtape.playTrackSynth(trackId);
+              });
+            }
+          } else {
+            usingSynthFallback = true;
+            SynthMixtape.playTrackSynth(trackId);
+          }
+        }
+
+        function togglePlayPause() {
+          if (!isPlaying) {
+            playTrack(currentTrackId);
+          } else {
+            // Pause
+            isPlaying = false;
+            tonearmRod.classList.remove('on-record');
+            vinylRecord.classList.add('is-paused');
+            visualizer.classList.remove('is-active');
+            mainPlayIcon.textContent = '▶';
+            playbackDot.style.background = '#AA820A';
+
+            if (audioEl && !usingSynthFallback) {
+              audioEl.pause();
+            }
+            SynthMixtape.stop();
+          }
+        }
+
+        function nextTrack() {
+          let nextId = currentTrackId + 1;
+          if (nextId > TRACKS.length) nextId = 1;
+          playTrack(nextId);
+        }
+
+        function prevTrack() {
+          let prevId = currentTrackId - 1;
+          if (prevId < 1) prevId = TRACKS.length;
+          playTrack(prevId);
+        }
+
+        function flipCard(trackId) {
+          const card = document.getElementById(`trackCard-${trackId}`);
+          if (card) {
+            card.classList.toggle('is-flipped');
+          }
+        }
+
+        function updateExploredUI() {
+          const count = exploredTracks.size;
+          exploredBadge.textContent = `Explored: ${count} / 4 Tracks 🎵`;
+
+          if (count >= 4 && !completionRewardCard.classList.contains('is-unlocked')) {
+            completionRewardCard.classList.add('is-unlocked');
+            SoundFX.playCompletionFanfare();
+            PandaLock.showToast('All 4 Mixtape tracks explored! Level 3 Reward Unlocked 🏆', '🎉');
+            setTimeout(() => {
+              completionRewardCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }, 500);
+          }
+        }
+
+        // Attach Transport Click Handlers
+        document.getElementById('mainPlayPauseBtn').addEventListener('click', (e) => {
+          e.stopPropagation();
+          togglePlayPause();
+        });
+
+        vinylRecord.addEventListener('click', (e) => {
+          e.stopPropagation();
+          togglePlayPause();
+        });
+
+        document.getElementById('nextTrackBtn').addEventListener('click', (e) => {
+          e.stopPropagation();
+          nextTrack();
+        });
+
+        document.getElementById('prevTrackBtn').addEventListener('click', (e) => {
+          e.stopPropagation();
+          prevTrack();
+        });
+
+        return {
+          playTrack,
+          togglePlayPause,
+          flipCard
+        };
+      })();
+
+      // Expose to window for inline onclick handlers
+      window.TurntableApp = TurntableApp;
+
+      // 4. Autoplay Welcome Handling
+      let welcomeChimePlayed = false;
+      function tryWelcome() {
+        if (welcomeChimePlayed) return;
+        const ctx = SoundFX.getAudioContext();
+        if (ctx && ctx.state === 'running') {
+          welcomeChimePlayed = true;
+          SoundFX.playWelcomeChime();
+        }
+      }
+      tryWelcome();
+
+      const unlockAudio = () => {
+        SoundFX.getAudioContext();
+        if (!welcomeChimePlayed) tryWelcome();
+        window.removeEventListener('pointerdown', unlockAudio);
+        window.removeEventListener('keydown', unlockAudio);
+      };
+      window.addEventListener('pointerdown', unlockAudio);
+      window.addEventListener('keydown', unlockAudio);
+
+      // Sound Toggle Button Handler
+      const soundToggleBtn = document.getElementById('soundToggleBtn');
+      const soundIcon = document.getElementById('soundIcon');
+      const soundLabel = document.getElementById('soundLabel');
+
+      soundToggleBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        SoundFX.getAudioContext();
+        const muted = SoundFX.toggleMute();
+        const audioEl = document.getElementById('localAudioPlayer');
+        if (audioEl) audioEl.muted = muted;
+
+        if (muted) {
+          soundToggleBtn.classList.add('is-muted');
+          soundIcon.textContent = '🔇';
+          soundLabel.textContent = 'Muted';
+          PandaLock.showToast('Sound Muted 🔇', '🎵');
+        } else {
+          soundToggleBtn.classList.remove('is-muted');
+          soundIcon.textContent = '🔊';
+          soundLabel.textContent = 'Sound On';
+          SoundFX.playNeedleDrop();
+          PandaLock.showToast('Sound Enabled 🔊', '🎵');
+        }
+      });
+
+      // 5. Complete Level 3 & Return to Map
+      const completeDay3Btn = document.getElementById('completeDay3Btn');
+      if (completeDay3Btn) {
+        completeDay3Btn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          PandaLock.completeLevel(3);
+          PandaLock.showToast('Day 3 marked as Completed! Returning to Map... 💖', '🏆');
+
+          setTimeout(() => {
+            window.location.href = '../index.html';
+          }, 1200);
+        });
+      }
+    });
+  </script>
 </body>
 </html>
-
