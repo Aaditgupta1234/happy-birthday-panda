@@ -75,10 +75,162 @@ const PandaLock = (function () {
   ];
 
   const PREVIEW_STORAGE_KEY = 'panda_creator_preview_mode';
+  const VAULT_STORAGE_KEY = 'panda_vault_unlocked';
+  
+  // Master Password Gate (Case-insensitive: accepts 'panda', 'PANDA', 'Panda', etc.)
+  // Edit this secret code anytime!
+  const SITE_PASSWORD = 'panda';
+
+  // In-memory vault state: resets to locked on every page refresh/reload
+  let isVaultSessionUnlocked = false;
+
   let levelStateCache = {};
   let intervalTimer = null;
   let mascotTapCount = 0;
   let mascotTapTimer = null;
+
+  /**
+   * Helper: Check if Password Vault is unlocked
+   * Resets every time the page is refreshed.
+   * Bypassed automatically in Creator Preview Mode.
+   */
+  function isVaultUnlocked() {
+    if (isPreviewMode()) return true;
+    return isVaultSessionUnlocked;
+  }
+
+  /**
+   * Play celebratory Web Audio unlock chime when password is correct
+   */
+  function playVaultUnlockSound() {
+    try {
+      const AudioCtx = window.AudioContext || window.webkitAudioContext;
+      if (!AudioCtx) return;
+      const ctx = new AudioCtx();
+      if (ctx.state === 'suspended') ctx.resume();
+
+      const now = ctx.currentTime;
+      // Bright sparkling 4-note chime (C5, E5, G5, C6) with warm sustain
+      const notes = [523.25, 659.25, 783.99, 1046.50];
+      notes.forEach((freq, idx) => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(freq, now + idx * 0.11);
+
+        gain.gain.setValueAtTime(0.001, now + idx * 0.11);
+        gain.gain.linearRampToValueAtTime(0.28, now + idx * 0.11 + 0.02);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.11 + 0.55);
+
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+
+        osc.start(now + idx * 0.11);
+        osc.stop(now + idx * 0.11 + 0.6);
+      });
+    } catch (err) {
+      console.warn('AudioContext not available for vault chime', err);
+    }
+  }
+
+  /**
+   * Toggle Password Input Masking (Password vs Text)
+   */
+  function togglePasswordVisibility() {
+    const input = document.getElementById('vaultPasswordInput');
+    const btn = document.getElementById('vaultEyeBtn');
+    if (!input || !btn) return;
+
+    if (input.type === 'password') {
+      input.type = 'text';
+      btn.innerHTML = '🙈';
+      btn.setAttribute('aria-label', 'Hide password');
+    } else {
+      input.type = 'password';
+      btn.innerHTML = '👁️';
+      btn.setAttribute('aria-label', 'Show password');
+    }
+  }
+
+  /**
+   * Process Vault Unlock Submission
+   */
+  function unlockVault(inputVal) {
+    const input = document.getElementById('vaultPasswordInput');
+    const entered = (typeof inputVal === 'string' ? inputVal : (input ? input.value : '')).trim();
+    const vaultCard = document.getElementById('vaultGateCard');
+    const countdownMap = document.getElementById('countdownMap');
+
+    if (entered.toLowerCase() === SITE_PASSWORD.toLowerCase()) {
+      isVaultSessionUnlocked = true;
+      try {
+        localStorage.removeItem(VAULT_STORAGE_KEY);
+        sessionStorage.removeItem(VAULT_STORAGE_KEY);
+      } catch (e) {}
+
+      playVaultUnlockSound();
+      showToast('✨ Secret code accepted! Welcome to your Birthday Odyssey, Panda 🐼💖', '✨');
+
+      if (vaultCard) {
+        vaultCard.classList.add('is-unlocked-vault');
+        setTimeout(() => {
+          vaultCard.style.display = 'none';
+          if (countdownMap) {
+            countdownMap.classList.remove('vault-hidden');
+            countdownMap.classList.add('vault-revealed');
+          }
+        }, 400);
+      } else if (countdownMap) {
+        countdownMap.classList.remove('vault-hidden');
+        countdownMap.classList.add('vault-revealed');
+      }
+      return true;
+    } else {
+      // Wrong passcode: shake animation & toast
+      if (vaultCard) {
+        vaultCard.classList.remove('shake-animation');
+        void vaultCard.offsetWidth; // Force CSS reflow
+        vaultCard.classList.add('shake-animation');
+      }
+      showToast('Oops! Wrong secret code, Panda 🙈', '🐾');
+      if (input) {
+        input.select();
+        input.focus();
+      }
+      return false;
+    }
+  }
+
+  /**
+   * Initialize Vault UI State on Hub Load
+   * Every page refresh resets the vault to locked state
+   */
+  function initVaultUI() {
+    try {
+      localStorage.removeItem(VAULT_STORAGE_KEY);
+      sessionStorage.removeItem(VAULT_STORAGE_KEY);
+    } catch (e) {}
+
+    const vaultCard = document.getElementById('vaultGateCard');
+    const countdownMap = document.getElementById('countdownMap');
+    if (!vaultCard || !countdownMap) return;
+
+    if (isVaultUnlocked()) {
+      vaultCard.style.display = 'none';
+      countdownMap.classList.remove('vault-hidden');
+      countdownMap.classList.add('vault-revealed');
+    } else {
+      vaultCard.style.display = 'block';
+      vaultCard.classList.remove('is-unlocked-vault');
+      countdownMap.classList.add('vault-hidden');
+      countdownMap.classList.remove('vault-revealed');
+      
+      const input = document.getElementById('vaultPasswordInput');
+      if (input) {
+        input.value = '';
+      }
+    }
+  }
 
   /**
    * Helper: Check if Creator Preview Mode is active
@@ -377,6 +529,9 @@ const PandaLock = (function () {
       mascot.addEventListener('click', handleMascotTap);
     }
 
+    // Initialize Vault Lock UI
+    initVaultUI();
+
     // Initial render & state evaluation
     renderAllCards();
 
@@ -629,6 +784,10 @@ const PandaLock = (function () {
     isPreviewMode,
     setPreviewMode,
     exitPreviewMode,
+    isVaultUnlocked,
+    unlockVault,
+    togglePasswordVisibility,
+    initVaultUI,
     isLevelUnlocked,
     isLevelCompleted,
     completeLevel,

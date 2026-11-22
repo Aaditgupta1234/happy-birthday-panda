@@ -144,8 +144,134 @@
 
     </header>
 
-    <!-- 5-Day Vertical Timeline Map -->
-    <main class="countdown-map" id="countdownMap">
+    <!-- SECTION 1: Birthday Girl Showcase Card (Always Visible) -->
+    <section class="birthday-showcase-section" id="birthdayShowcaseSection">
+      <div class="showcase-card">
+        
+        <!-- Ambient Decorative Sparkles -->
+        <div class="showcase-sparkle showcase-sparkle-1">✨</div>
+        <div class="showcase-sparkle showcase-sparkle-2">💖</div>
+
+        <div class="showcase-layout">
+          
+          <!-- Portrait Frame with Panda Ears & Automatic Fallback -->
+          <div class="showcase-portrait-container">
+            <!-- Decorative Panda Ears -->
+            <div class="showcase-panda-ears">
+              <div class="showcase-ear showcase-ear-left"></div>
+              <div class="showcase-ear showcase-ear-right"></div>
+            </div>
+
+            <!-- Double-Ring Champagne Gold & Rose Pink Portrait Frame -->
+            <div class="showcase-portrait-frame">
+              <img 
+                src="assets/panda-showcase.jpg" 
+                alt="Panda - The Birthday Star" 
+                class="showcase-img"
+                id="showcaseImg"
+                onerror="this.style.display='none'; document.getElementById('showcaseFallback').style.display='flex';"
+              />
+              <!-- Styled Fallback Placeholder when photo not yet dropped -->
+              <div class="showcase-photo-fallback" id="showcaseFallback">
+                <div class="fallback-mascot-badge">🐼📸</div>
+                <div class="fallback-title">Birthday Star Portrait</div>
+                <div class="fallback-instruction">[Drop photo: assets/panda-showcase.jpg]</div>
+              </div>
+            </div>
+
+            <!-- Little Gold Crown Badge -->
+            <div class="showcase-crown-tag" title="The Queen of the Week">👑</div>
+          </div>
+
+          <!-- Showcase Details & Hype Note -->
+          <div class="showcase-details">
+            <div class="showcase-star-badge">
+              <span class="star-icon">✨</span> THE BIRTHDAY STAR <span class="star-icon">✨</span>
+            </div>
+
+            <h2 class="showcase-heading">[EDIT HERE: Panda's Spotlight Title]</h2>
+            
+            <p class="showcase-bio">
+              [EDIT HERE: A short hype note about why she's the best]
+            </p>
+
+            <div class="showcase-traits">
+              <span class="trait-pill">🌟 Chief Joy Bringer</span>
+              <span class="trait-pill">🐼 Unlimited Cuteness</span>
+              <span class="trait-pill">🎂 Dec 5 Born Legend</span>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 2: Secret Password Gate for the 5-Day Levels Path -->
+    <section class="vault-gate-section" id="vaultGateCard">
+      <div class="vault-gate-card">
+        
+        <!-- Animated Vault Icon -->
+        <div class="vault-icon-wrapper">
+          <div class="vault-icon-circle">
+            <span class="vault-lock-symbol">🔐</span>
+          </div>
+        </div>
+
+        <div class="vault-badge">PRIVATE ODYSSEY VAULT</div>
+
+        <h2 class="vault-title">Enter Panda's Secret Passcode</h2>
+        
+        <p class="vault-subtitle">
+          This 5-day birthday treasure map is strictly reserved for the guest of honor.
+          Whisper the secret code below to open the path!
+        </p>
+
+        <!-- Password Hint Prompt -->
+        <div class="vault-hint-card">
+          <span class="vault-hint-icon">💡</span>
+          <div class="vault-hint-text">
+            <strong>Password Hint:</strong> [EDIT HERE: The nickname only I call you, or favorite snack 🐼]
+          </div>
+        </div>
+
+        <!-- Password Form -->
+        <form class="vault-form" onsubmit="event.preventDefault(); PandaLock.unlockVault();">
+          <div class="vault-input-group">
+            <span class="vault-input-icon">🔑</span>
+            <input 
+              type="password" 
+              id="vaultPasswordInput" 
+              class="vault-input" 
+              placeholder="Enter secret code (e.g. panda)..." 
+              autocomplete="current-password"
+              required
+            />
+            <button 
+              type="button" 
+              class="vault-eye-btn" 
+              id="vaultEyeBtn" 
+              onclick="PandaLock.togglePasswordVisibility()" 
+              aria-label="Toggle password visibility"
+              title="Show or hide password"
+            >
+              👁️
+            </button>
+          </div>
+
+          <button type="submit" class="vault-submit-btn" id="vaultSubmitBtn">
+            <span>Unlock Adventure 🐼</span>
+            <span class="btn-sparkle">✨</span>
+          </button>
+        </form>
+
+        <p class="vault-note">
+          Psst... If you ever get stuck, your bestie is right here with the master key! 🗝️
+        </p>
+      </div>
+    </section>
+
+    <!-- 5-Day Vertical Timeline Map (Hidden behind vault until unlocked) -->
+    <main class="countdown-map vault-hidden" id="countdownMap">
       <!-- Populated dynamically via lockManager.js -->
     </main>
 
