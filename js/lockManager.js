@@ -66,7 +66,7 @@ const PandaLock = (function () {
       dayLabel: 'Day 5 — Dec 5 (Grand Finale)',
       dateShort: 'Dec 05, 2026',
       title: 'Happy Birthday Panda! 🎂',
-      subtitle: 'The grand birthday celebration & love letter',
+      subtitle: 'The grand birthday celebration & letter',
       unlockISO: '2026-12-05T00:00:00+05:30',
       unlockDisplay: '12:00 AM on Dec 5',
       url: 'levels/level5.html',
@@ -120,6 +120,25 @@ const PandaLock = (function () {
     const url = new URL(window.location.href);
     url.searchParams.delete('preview');
     window.location.href = url.pathname + (url.search ? url.search : '');
+  }
+
+  /**
+   * Level Completion Tracking (localStorage)
+   */
+  function isLevelCompleted(levelId) {
+    try {
+      return localStorage.getItem(`panda_level_${levelId}_completed`) === 'true';
+    } catch (e) {
+      return false;
+    }
+  }
+
+  function completeLevel(levelId) {
+    try {
+      localStorage.setItem(`panda_level_${levelId}_completed`, 'true');
+    } catch (e) {
+      console.warn('Could not save completion to localStorage', e);
+    }
   }
 
   /**
@@ -379,24 +398,35 @@ const PandaLock = (function () {
 
     LEVELS_CONFIG.forEach(level => {
       const unlocked = isLevelUnlocked(level.id);
+      const completed = isLevelCompleted(level.id);
       levelStateCache[level.id] = unlocked;
 
       const remaining = getRemainingTime(level.id);
 
       const wrapper = document.createElement('div');
-      wrapper.className = `level-card-wrapper ${unlocked ? 'is-unlocked' : 'is-locked'}`;
+      wrapper.className = `level-card-wrapper ${unlocked ? 'is-unlocked' : 'is-locked'} ${completed ? 'is-completed' : ''}`;
       wrapper.id = `wrapper-level-${level.id}`;
 
       // Central node checkpoint
       const checkpoint = document.createElement('div');
-      checkpoint.className = 'map-checkpoint-node';
-      checkpoint.innerHTML = unlocked ? '✓' : level.id;
+      checkpoint.className = `map-checkpoint-node ${completed ? 'checkpoint-completed' : ''}`;
+      checkpoint.innerHTML = completed ? '★' : (unlocked ? '✓' : level.id);
       wrapper.appendChild(checkpoint);
 
       // Card element
       const card = document.createElement('div');
-      card.className = `level-card ${unlocked ? 'is-unlocked' : 'is-locked'} ${level.isFinale ? 'is-finale' : ''}`;
+      card.className = `level-card ${unlocked ? 'is-unlocked' : 'is-locked'} ${level.isFinale ? 'is-finale' : ''} ${completed ? 'is-completed' : ''}`;
       card.id = `level-card-${level.id}`;
+
+      let statusBadgeClass = 'status-locked';
+      let statusBadgeText = '🔒 LOCKED';
+      if (completed) {
+        statusBadgeClass = 'status-completed';
+        statusBadgeText = 'COMPLETED ✓';
+      } else if (unlocked) {
+        statusBadgeClass = 'status-unlocked';
+        statusBadgeText = 'UNLOCKED';
+      }
 
       card.innerHTML = `
         <div class="card-panda-ears">
@@ -406,8 +436,8 @@ const PandaLock = (function () {
 
         <div class="card-header">
           <span class="card-day-badge">${level.dayLabel}</span>
-          <span class="card-status-badge ${unlocked ? 'status-unlocked' : 'status-locked'}" id="status-badge-${level.id}">
-            ${unlocked ? 'UNLOCKED' : '🔒 LOCKED'}
+          <span class="card-status-badge ${statusBadgeClass}" id="status-badge-${level.id}">
+            ${statusBadgeText}
           </span>
         </div>
 
@@ -419,15 +449,15 @@ const PandaLock = (function () {
 
         <div class="card-countdown-box ${unlocked ? 'is-unlocked-state' : ''}" id="countdown-box-${level.id}">
           <span class="countdown-label">
-            ${unlocked ? '<span>✨ Status:</span>' : '<span>⏳ Status:</span>'}
+            ${completed ? '<span>⭐ Status:</span>' : (unlocked ? '<span>✨ Status:</span>' : '<span>⏳ Status:</span>')}
           </span>
           <span class="countdown-timer-value" id="countdown-val-${level.id}">
-            ${unlocked ? (isPreviewMode() ? 'Unlocked (Preview)' : 'Unlocked ✨') : remaining.text}
+            ${completed ? 'Completed ✓' : (unlocked ? (isPreviewMode() ? 'Unlocked (Preview)' : 'Unlocked ✨') : remaining.text)}
           </span>
         </div>
 
         <div class="card-action-wrap" id="action-wrap-${level.id}">
-          ${renderActionButton(level, unlocked)}
+          ${renderActionButton(level, unlocked, completed)}
         </div>
       `;
 
@@ -446,11 +476,12 @@ const PandaLock = (function () {
     });
   }
 
-  function renderActionButton(level, unlocked) {
+  function renderActionButton(level, unlocked, completed = false) {
     if (unlocked) {
+      const btnText = completed ? `Replay Level 0${level.id} ✨` : `Play Level 0${level.id}`;
       return `
-        <a href="${level.url}" class="card-action-btn ${level.isFinale ? 'btn-finale' : 'btn-unlocked'}">
-          <span>Play Level 0${level.id}</span>
+        <a href="${level.url}" class="card-action-btn ${level.isFinale ? 'btn-finale' : 'btn-unlocked'} ${completed ? 'btn-completed' : ''}">
+          <span>${btnText}</span>
           <span>→</span>
         </a>
       `;
@@ -599,6 +630,8 @@ const PandaLock = (function () {
     setPreviewMode,
     exitPreviewMode,
     isLevelUnlocked,
+    isLevelCompleted,
+    completeLevel,
     getRemainingTime,
     showToast,
     guardLevel,

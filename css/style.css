@@ -980,3 +980,489 @@ body {
   }
 }
 
+/* ========================================================
+   COMPLETION BADGES & STATES
+   ======================================================== */
+.card-status-badge.status-completed {
+  background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  box-shadow: 0 2px 10px rgba(16, 185, 129, 0.35);
+}
+
+.map-checkpoint-node.checkpoint-completed {
+  background: var(--gold-gradient) !important;
+  color: var(--panda-black) !important;
+  box-shadow: 0 0 22px rgba(212, 175, 55, 0.85) !important;
+  border-color: #AA820A !important;
+}
+
+.card-action-btn.btn-completed {
+  background: linear-gradient(135deg, #F3E5AB 0%, #D4AF37 50%, #AA820A 100%);
+  color: var(--panda-black);
+  box-shadow: 0 6px 20px rgba(212, 175, 55, 0.4);
+}
+
+/* ========================================================
+   LEVEL 1 MINI-GAME & REWARD ENVELOPE STYLING
+   ======================================================== */
+.game-container-card {
+  width: 100%;
+  max-width: 640px;
+  background: var(--glass-bg);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: var(--glass-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--glass-shadow-hover);
+  padding: 1.8rem 1.6rem;
+  margin-top: 1.5rem;
+  text-align: center;
+  position: relative;
+}
+
+.game-score-board {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.8rem;
+  margin-bottom: 1rem;
+}
+
+.game-score-box {
+  background: rgba(255, 255, 255, 0.9);
+  border: 1.5px solid var(--gold-border);
+  border-radius: var(--radius-pill);
+  padding: 0.4rem 1.1rem;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--panda-black);
+  box-shadow: 0 4px 12px rgba(212, 175, 55, 0.12);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.game-target-box {
+  background: rgba(255, 240, 245, 0.95);
+  border: 1.5px solid rgba(244, 143, 177, 0.5);
+  border-radius: var(--radius-pill);
+  padding: 0.4rem 1.1rem;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--rose-deep);
+  box-shadow: 0 4px 12px rgba(236, 64, 122, 0.1);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.sound-toggle-btn {
+  background: rgba(255, 255, 255, 0.9);
+  border: 1.5px solid var(--gold-border);
+  border-radius: var(--radius-pill);
+  padding: 0.4rem 1.1rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--panda-black);
+  box-shadow: 0 4px 12px rgba(212, 175, 55, 0.12);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  font-family: var(--font-body);
+  user-select: none;
+}
+
+.sound-toggle-btn:hover {
+  background: #FFFDF9;
+  border-color: var(--rose-pink);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(236, 64, 122, 0.16);
+}
+
+.sound-toggle-btn.is-muted {
+  background: rgba(240, 240, 245, 0.85);
+  color: var(--panda-muted);
+  border-color: rgba(30, 30, 36, 0.18);
+  box-shadow: none;
+}
+
+/* Mini-Game Progress Bar */
+.game-progress-wrapper {
+  margin-bottom: 1.2rem;
+  width: 100%;
+}
+
+.game-progress-header {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--panda-muted);
+  margin-bottom: 0.35rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.game-progress-bar-track {
+  width: 100%;
+  height: 14px;
+  background: rgba(30, 30, 36, 0.06);
+  border-radius: var(--radius-pill);
+  overflow: hidden;
+  border: 1px solid rgba(212, 175, 55, 0.3);
+  position: relative;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.game-progress-bar-fill {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, var(--rose-pink) 0%, var(--rose-deep) 60%, var(--gold-metallic) 100%);
+  border-radius: var(--radius-pill);
+  transition: width 0.25s cubic-bezier(0.2, 0.8, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.game-progress-bar-fill::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.4) 50%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  animation: barShimmer 1.8s infinite;
+}
+
+@keyframes barShimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+/* Game Canvas Arena */
+.game-canvas-area {
+  position: relative;
+  width: 100%;
+  height: 380px;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  border: 1.5px solid var(--gold-border);
+  background: radial-gradient(circle at 50% 20%, #FFF5F8 0%, #FFF8FA 60%, #FFEEF4 100%);
+  box-shadow: inset 0 4px 18px rgba(236, 64, 122, 0.06), 0 8px 24px rgba(212, 175, 55, 0.12);
+  touch-action: none;
+  cursor: ew-resize;
+}
+
+#catchGameCanvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.game-hint-pill {
+  margin-top: 1rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: rgba(255, 255, 255, 0.85);
+  border: 1px solid rgba(212, 175, 55, 0.35);
+  padding: 0.4rem 1.1rem;
+  border-radius: var(--radius-pill);
+  font-size: 0.8rem;
+  color: var(--panda-charcoal);
+  font-weight: 500;
+}
+
+/* ========================================================
+   REWARD SECTION & LUXURY WAX SEAL ENVELOPE
+   ======================================================== */
+.reward-section {
+  display: none;
+  margin-top: 2.5rem;
+  width: 100%;
+  max-width: 640px;
+  animation: rewardRevealFade 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+}
+
+.reward-section.is-active {
+  display: block;
+}
+
+@keyframes rewardRevealFade {
+  0% { opacity: 0; transform: translateY(30px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+.reward-celebration-banner {
+  background: linear-gradient(135deg, #FFF0F6 0%, #FFF8FA 50%, #FFF3D6 100%);
+  border: 2px solid var(--gold-metallic);
+  border-radius: var(--radius-lg);
+  padding: 1.5rem;
+  text-align: center;
+  margin-bottom: 2rem;
+  box-shadow: 0 10px 30px rgba(212, 175, 55, 0.22);
+}
+
+.reward-banner-title {
+  font-family: var(--font-heading);
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: var(--rose-deep);
+  margin-bottom: 0.3rem;
+}
+
+.reward-banner-sub {
+  font-family: var(--font-script);
+  font-size: 1.3rem;
+  color: var(--gold-dark);
+}
+
+/* Digital Wax-Sealed Envelope */
+.envelope-interactive-wrap {
+  position: relative;
+  width: 100%;
+  max-width: 540px;
+  margin: 0 auto 3rem;
+  perspective: 1200px;
+}
+
+.envelope-pocket {
+  position: relative;
+  width: 100%;
+  min-height: 280px;
+  background: linear-gradient(135deg, #FFFFFF 0%, #FFF5F8 100%);
+  border: 2px solid var(--gold-metallic);
+  border-radius: var(--radius-md);
+  box-shadow: 0 16px 45px rgba(236, 64, 122, 0.15), 0 6px 20px rgba(212, 175, 55, 0.2);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2.5rem 1.5rem;
+  cursor: pointer;
+  transition: transform var(--transition-bounce), box-shadow var(--transition-normal);
+  overflow: hidden;
+}
+
+.envelope-pocket:hover {
+  transform: translateY(-4px) scale(1.01);
+  box-shadow: 0 22px 55px rgba(236, 64, 122, 0.22), 0 8px 26px rgba(212, 175, 55, 0.3);
+}
+
+/* Gold Flap & Filigree on Envelope */
+.envelope-flap-decor {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 90px;
+  background: linear-gradient(180deg, rgba(243, 229, 171, 0.4) 0%, transparent 100%);
+  border-bottom: 1.5px dashed var(--gold-metallic);
+  pointer-events: none;
+}
+
+/* Real Wax Seal Button */
+.wax-seal-btn {
+  position: relative;
+  z-index: 5;
+  width: 84px;
+  height: 84px;
+  background: radial-gradient(circle at 35% 35%, #FF5277, #C2185B 60%, #880E4F 100%);
+  border-radius: 50%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  box-shadow:
+    inset 0 3px 6px rgba(255, 255, 255, 0.5),
+    inset 0 -4px 8px rgba(0, 0, 0, 0.4),
+    0 8px 24px rgba(194, 24, 91, 0.5),
+    0 0 0 3px rgba(212, 175, 55, 0.8);
+  border: none;
+  cursor: pointer;
+  transition: transform var(--transition-bounce), box-shadow var(--transition-normal);
+  animation: sealPulse 2.4s ease-in-out infinite;
+}
+
+.wax-seal-btn:hover {
+  transform: scale(1.1) rotate(5deg);
+  box-shadow:
+    inset 0 3px 6px rgba(255, 255, 255, 0.6),
+    inset 0 -4px 8px rgba(0, 0, 0, 0.4),
+    0 12px 30px rgba(194, 24, 91, 0.7),
+    0 0 0 4px var(--gold-metallic);
+}
+
+.wax-seal-btn:active {
+  transform: scale(0.95);
+}
+
+@keyframes sealPulse {
+  0%, 100% {
+    box-shadow:
+      inset 0 3px 6px rgba(255, 255, 255, 0.5),
+      inset 0 -4px 8px rgba(0, 0, 0, 0.4),
+      0 8px 24px rgba(194, 24, 91, 0.4),
+      0 0 0 3px rgba(212, 175, 55, 0.8);
+  }
+  50% {
+    box-shadow:
+      inset 0 3px 6px rgba(255, 255, 255, 0.6),
+      inset 0 -4px 8px rgba(0, 0, 0, 0.4),
+      0 12px 32px rgba(244, 143, 177, 0.6),
+      0 0 0 5px var(--gold-metallic);
+  }
+}
+
+.wax-seal-stamp {
+  font-size: 1.8rem;
+  filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.3));
+}
+
+.wax-seal-hint {
+  margin-top: 1.1rem;
+  font-family: var(--font-script);
+  font-size: 1.35rem;
+  color: var(--rose-deep);
+  font-weight: 700;
+  text-align: center;
+}
+
+/* ========================================================
+   UNFOLDED LETTER PARCHMENT (AFTER SEAL OPENED)
+   ======================================================== */
+.letter-parchment-sheet {
+  display: none;
+  background: #FFFDF9;
+  background-image:
+    radial-gradient(#F3E5AB 0.75px, transparent 0.75px),
+    linear-gradient(180deg, #FFFFFF 0%, #FFFDF7 100%);
+  background-size: 20px 20px, 100% 100%;
+  border: 2px solid var(--gold-metallic);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 20px 60px rgba(212, 175, 55, 0.25), 0 8px 24px rgba(0, 0, 0, 0.08);
+  padding: 3rem 2.4rem;
+  text-align: left;
+  position: relative;
+  overflow: hidden;
+  animation: letterUnfurl 0.85s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.letter-parchment-sheet.is-open {
+  display: block;
+}
+
+@keyframes letterUnfurl {
+  0% {
+    opacity: 0;
+    transform: scale(0.92) translateY(40px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+/* Parchment Gold Corner Accents */
+.parchment-corner {
+  position: absolute;
+  width: 28px;
+  height: 28px;
+  border-color: var(--gold-metallic);
+  border-style: solid;
+  pointer-events: none;
+  opacity: 0.75;
+}
+.parchment-corner-tl { top: 12px; left: 12px; border-width: 2px 0 0 2px; }
+.parchment-corner-tr { top: 12px; right: 12px; border-width: 2px 2px 0 0; }
+.parchment-corner-bl { bottom: 12px; left: 12px; border-width: 0 0 2px 2px; }
+.parchment-corner-br { bottom: 12px; right: 12px; border-width: 0 2px 2px 0; }
+
+.letter-date-pill {
+  display: inline-block;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--gold-dark);
+  border-bottom: 1.5px solid var(--gold-light);
+  padding-bottom: 0.25rem;
+  margin-bottom: 1.25rem;
+}
+
+.letter-salutation {
+  font-family: var(--font-script);
+  font-size: 2.2rem;
+  color: var(--rose-deep);
+  font-weight: 700;
+  margin-bottom: 1rem;
+}
+
+.letter-body-text {
+  font-family: var(--font-body);
+  font-size: 1.02rem;
+  color: var(--panda-charcoal);
+  line-height: 1.85;
+  margin-bottom: 1.2rem;
+}
+
+.letter-highlight-quote {
+  font-family: var(--font-heading);
+  font-style: italic;
+  font-size: 1.15rem;
+  color: var(--gold-dark);
+  border-left: 3px solid var(--gold-metallic);
+  padding: 0.6rem 1.2rem;
+  margin: 1.5rem 0;
+  background: rgba(243, 229, 171, 0.2);
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+}
+
+.letter-signoff {
+  font-family: var(--font-script);
+  font-size: 1.9rem;
+  color: var(--rose-deep);
+  font-weight: 700;
+  margin-top: 2rem;
+  text-align: right;
+}
+
+.letter-footer-action {
+  margin-top: 2.5rem;
+  text-align: center;
+}
+
+.btn-complete-level {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  background: linear-gradient(135deg, var(--rose-pink) 0%, var(--rose-deep) 60%, var(--gold-metallic) 100%);
+  color: #ffffff;
+  padding: 0.95rem 2.2rem;
+  border-radius: var(--radius-pill);
+  font-size: 1rem;
+  font-weight: 700;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  cursor: pointer;
+  box-shadow: 0 8px 26px rgba(236, 64, 122, 0.35);
+  transition: all var(--transition-normal);
+  text-decoration: none;
+}
+
+.btn-complete-level:hover {
+  transform: translateY(-3px) scale(1.02);
+  box-shadow: 0 12px 32px rgba(236, 64, 122, 0.48), 0 0 20px rgba(212, 175, 55, 0.4);
+}
+
+
