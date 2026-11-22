@@ -1,0 +1,612 @@
+/**
+ * LUXE PANDA - 5-DAY TIME-LOCK ENGINE & NAVIGATION GUARD
+ * 
+ * Midnight Time-Lock (IST / +05:30):
+ * - Level 1: 2026-12-01T00:00:00+05:30 (Dec 1)
+ * - Level 2: 2026-12-02T00:00:00+05:30 (Dec 2)
+ * - Level 3: 2026-12-03T00:00:00+05:30 (Dec 3)
+ * - Level 4: 2026-12-04T00:00:00+05:30 (Dec 4)
+ * - Level 5: 2026-12-05T00:00:00+05:30 (Dec 5 - Grand Finale)
+ */
+
+const PandaLock = (function () {
+  // Exact 5-Day IST Midnight Unlock Schedule
+  const LEVELS_CONFIG = [
+    {
+      id: 1,
+      dayNumber: 1,
+      dayLabel: 'Day 1 — Dec 1',
+      dateShort: 'Dec 01, 2026',
+      title: 'The Journey Begins',
+      subtitle: 'Where our sweetest story starts',
+      unlockISO: '2026-12-01T00:00:00+05:30',
+      unlockDisplay: '12:00 AM on Dec 1',
+      url: 'levels/level1.html',
+      isFinale: false
+    },
+    {
+      id: 2,
+      dayNumber: 2,
+      dayLabel: 'Day 2 — Dec 2',
+      dateShort: 'Dec 02, 2026',
+      title: 'Inside Jokes & Secret Smiles',
+      subtitle: 'The silly moments only we understand',
+      unlockISO: '2026-12-02T00:00:00+05:30',
+      unlockDisplay: '12:00 AM on Dec 2',
+      url: 'levels/level2.html',
+      isFinale: false
+    },
+    {
+      id: 3,
+      dayNumber: 3,
+      dayLabel: 'Day 3 — Dec 3',
+      dateShort: 'Dec 03, 2026',
+      title: 'Favorite Melodies & Warm Hugs',
+      subtitle: 'A mixtape of heartbeats & dreams',
+      unlockISO: '2026-12-03T00:00:00+05:30',
+      unlockDisplay: '12:00 AM on Dec 3',
+      url: 'levels/level3.html',
+      isFinale: false
+    },
+    {
+      id: 4,
+      dayNumber: 4,
+      dayLabel: 'Day 4 — Dec 4',
+      dateShort: 'Dec 04, 2026',
+      title: 'The Eve of Wonders',
+      subtitle: 'One last sleep before your special day',
+      unlockISO: '2026-12-04T00:00:00+05:30',
+      unlockDisplay: '12:00 AM on Dec 4',
+      url: 'levels/level4.html',
+      isFinale: false
+    },
+    {
+      id: 5,
+      dayNumber: 5,
+      dayLabel: 'Day 5 — Dec 5 (Grand Finale)',
+      dateShort: 'Dec 05, 2026',
+      title: 'Happy Birthday Panda! 🎂',
+      subtitle: 'The grand birthday celebration & love letter',
+      unlockISO: '2026-12-05T00:00:00+05:30',
+      unlockDisplay: '12:00 AM on Dec 5',
+      url: 'levels/level5.html',
+      isFinale: true
+    }
+  ];
+
+  const PREVIEW_STORAGE_KEY = 'panda_creator_preview_mode';
+  let levelStateCache = {};
+  let intervalTimer = null;
+  let mascotTapCount = 0;
+  let mascotTapTimer = null;
+
+  /**
+   * Helper: Check if Creator Preview Mode is active
+   */
+  function isPreviewMode() {
+    try {
+      const urlParams = new URLSearchParams(window.location.search);
+      if (urlParams.get('preview') === 'true' || urlParams.get('preview') === '1') {
+        sessionStorage.setItem(PREVIEW_STORAGE_KEY, 'true');
+        return true;
+      }
+      return sessionStorage.getItem(PREVIEW_STORAGE_KEY) === 'true';
+    } catch (e) {
+      return false;
+    }
+  }
+
+  /**
+   * Enable/Disable Creator Preview Mode
+   */
+  function setPreviewMode(enable) {
+    if (enable) {
+      sessionStorage.setItem(PREVIEW_STORAGE_KEY, 'true');
+    } else {
+      sessionStorage.removeItem(PREVIEW_STORAGE_KEY);
+      const url = new URL(window.location.href);
+      if (url.searchParams.has('preview')) {
+        url.searchParams.delete('preview');
+        window.history.replaceState({}, document.title, url.pathname + (url.search ? url.search : ''));
+      }
+    }
+  }
+
+  /**
+   * Complete exit from preview mode and reload
+   */
+  function exitPreviewMode() {
+    sessionStorage.removeItem(PREVIEW_STORAGE_KEY);
+    const url = new URL(window.location.href);
+    url.searchParams.delete('preview');
+    window.location.href = url.pathname + (url.search ? url.search : '');
+  }
+
+  /**
+   * Check if a specific level is currently unlocked
+   */
+  function isLevelUnlocked(levelId) {
+    if (isPreviewMode()) {
+      return true;
+    }
+    const level = LEVELS_CONFIG.find(l => l.id === levelId);
+    if (!level) return false;
+
+    const unlockTime = new Date(level.unlockISO).getTime();
+    return Date.now() >= unlockTime;
+  }
+
+  /**
+   * Get formatted countdown remaining until unlock
+   */
+  function getRemainingTime(levelId) {
+    const level = LEVELS_CONFIG.find(l => l.id === levelId);
+    if (!level) return null;
+
+    if (isPreviewMode()) {
+      return { isUnlocked: true, text: 'Unlocked (Preview)' };
+    }
+
+    const unlockTime = new Date(level.unlockISO).getTime();
+    const now = Date.now();
+    const diff = unlockTime - now;
+
+    if (diff <= 0) {
+      return { isUnlocked: true, text: 'Unlocked ✨' };
+    }
+
+    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+    const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+    const minutes = Math.floor((diff / (1000 * 60)) % 60);
+    const seconds = Math.floor((diff / 1000) % 60);
+
+    const pad = n => String(n).padStart(2, '0');
+
+    let text = '';
+    if (days > 0) {
+      text = `Opens in ${days}d ${pad(hours)}h ${pad(minutes)}m ${pad(seconds)}s`;
+    } else {
+      text = `Opens in ${pad(hours)}h ${pad(minutes)}m ${pad(seconds)}s`;
+    }
+
+    return {
+      isUnlocked: false,
+      diff,
+      days,
+      hours,
+      minutes,
+      seconds,
+      text
+    };
+  }
+
+  /**
+   * Toast notification system
+   */
+  function showToast(message, icon = '✨') {
+    let container = document.querySelector('.panda-toast-container');
+    if (!container) {
+      container = document.createElement('div');
+      container.className = 'panda-toast-container';
+      document.body.appendChild(container);
+    }
+
+    const toast = document.createElement('div');
+    toast.className = 'panda-toast';
+    toast.innerHTML = `<span class="toast-icon">${icon}</span> <span>${message}</span>`;
+    container.appendChild(toast);
+
+    setTimeout(() => {
+      toast.classList.add('hiding');
+      setTimeout(() => {
+        toast.remove();
+      }, 300);
+    }, 3200);
+  }
+
+  /**
+   * Secret 5-tap on Panda mascot trigger
+   */
+  function handleMascotTap(event) {
+    mascotTapCount++;
+
+    // Spawn floating cute heart / sparkle from click coordinate
+    createTapHeart(event);
+
+    clearTimeout(mascotTapTimer);
+    mascotTapTimer = setTimeout(() => {
+      mascotTapCount = 0;
+    }, 2500);
+
+    if (mascotTapCount >= 5) {
+      mascotTapCount = 0;
+      const current = isPreviewMode();
+      if (!current) {
+        setPreviewMode(true);
+        showToast('👑 Creator Preview Mode Activated! All 5 levels unlocked.', '🎉');
+      } else {
+        setPreviewMode(false);
+        showToast('Creator Preview Mode Deactivated.', '🔒');
+      }
+      setTimeout(() => {
+        window.location.reload();
+      }, 900);
+    }
+  }
+
+  function createTapHeart(e) {
+    const heart = document.createElement('span');
+    heart.className = 'mascot-floating-heart';
+    const emojis = ['💖', '✨', '🐾', '🎀', '⭐'];
+    heart.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = e.clientX ? e.clientX - rect.left : rect.width / 2;
+    const y = e.clientY ? e.clientY - rect.top : rect.height / 2;
+
+    heart.style.left = `${x}px`;
+    heart.style.top = `${y}px`;
+
+    e.currentTarget.appendChild(heart);
+    setTimeout(() => heart.remove(), 1200);
+  }
+
+  /**
+   * Trigger locked card shake & friendly toast
+   */
+  function handleLockedCardClick(levelId) {
+    const cardEl = document.getElementById(`level-card-${levelId}`);
+    if (cardEl) {
+      cardEl.classList.remove('is-shaking');
+      // Trigger reflow to restart animation
+      void cardEl.offsetWidth;
+      cardEl.classList.add('is-shaking');
+      setTimeout(() => {
+        cardEl.classList.remove('is-shaking');
+      }, 500);
+    }
+
+    const level = LEVELS_CONFIG.find(l => l.id === levelId);
+    const dateText = level ? level.unlockDisplay : `12:00 AM on Dec ${levelId}`;
+    showToast(`Patience, Panda! Unlocks at ${dateText} ✨`, '🐾');
+  }
+
+  /**
+   * Direct URL Guard for individual level pages:
+   * (e.g. levels/level1.html ... levels/level5.html)
+   */
+  function guardLevel(levelId) {
+    const level = LEVELS_CONFIG.find(l => l.id === levelId);
+    if (!level) return;
+
+    if (!isLevelUnlocked(levelId)) {
+      // Redirect immediately to map hub
+      window.location.replace(`../index.html?locked=${levelId}`);
+      return false;
+    }
+
+    // Set up preview banner if active
+    const setupUI = () => {
+      initPreviewBanner();
+      initBackgroundParticles();
+    };
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', setupUI);
+    } else {
+      setupUI();
+    }
+
+    return true;
+  }
+
+  /**
+   * Preview mode banner UI
+   */
+  function initPreviewBanner() {
+    let banner = document.querySelector('.preview-banner');
+    if (!banner) {
+      banner = document.createElement('div');
+      banner.className = 'preview-banner';
+      banner.innerHTML = `
+        <span class="preview-badge">Creator Mode</span>
+        <span class="preview-text">👑 Preview Active — All 5 Levels Unlocked for Testing</span>
+        <button class="preview-exit-btn" id="exitPreviewBtn">Exit Preview</button>
+      `;
+      document.body.prepend(banner);
+    }
+
+    if (isPreviewMode()) {
+      banner.classList.add('active');
+      const exitBtn = banner.querySelector('#exitPreviewBtn');
+      if (exitBtn) {
+        exitBtn.onclick = function () {
+          exitPreviewMode();
+        };
+      }
+    } else {
+      banner.classList.remove('active');
+    }
+  }
+
+  /**
+   * Main Hub: Render and update the 5-day level cards
+   */
+  function initHub() {
+    initPreviewBanner();
+    initBackgroundParticles();
+
+    // Check if redirected because of locked direct access
+    const urlParams = new URLSearchParams(window.location.search);
+    const lockedParam = urlParams.get('locked');
+    if (lockedParam) {
+      const lockedLevel = LEVELS_CONFIG.find(l => l.id === parseInt(lockedParam, 10));
+      const dateText = lockedLevel ? lockedLevel.unlockDisplay : `12:00 AM on Dec ${lockedParam}`;
+      setTimeout(() => {
+        showToast(`Patience, Panda! Level ${lockedParam} unlocks at ${dateText} ✨`, '🔒');
+      }, 400);
+
+      // Clean query string
+      urlParams.delete('locked');
+      const newQuery = urlParams.toString() ? `?${urlParams.toString()}` : '';
+      window.history.replaceState({}, document.title, window.location.pathname + newQuery);
+    }
+
+    // Setup mascot tap listener for secret 5-tap
+    const mascot = document.getElementById('pandaMascot');
+    if (mascot) {
+      mascot.addEventListener('click', handleMascotTap);
+    }
+
+    // Initial render & state evaluation
+    renderAllCards();
+
+    // Start 1-second auto-unlock countdown ticker
+    if (intervalTimer) clearInterval(intervalTimer);
+    intervalTimer = setInterval(() => {
+      updateCountdowns();
+    }, 1000);
+  }
+
+  /**
+   * Render all 5 cards into the DOM
+   */
+  function renderAllCards() {
+    const container = document.getElementById('countdownMap');
+    if (!container) return;
+
+    container.innerHTML = '';
+
+    LEVELS_CONFIG.forEach(level => {
+      const unlocked = isLevelUnlocked(level.id);
+      levelStateCache[level.id] = unlocked;
+
+      const remaining = getRemainingTime(level.id);
+
+      const wrapper = document.createElement('div');
+      wrapper.className = `level-card-wrapper ${unlocked ? 'is-unlocked' : 'is-locked'}`;
+      wrapper.id = `wrapper-level-${level.id}`;
+
+      // Central node checkpoint
+      const checkpoint = document.createElement('div');
+      checkpoint.className = 'map-checkpoint-node';
+      checkpoint.innerHTML = unlocked ? '✓' : level.id;
+      wrapper.appendChild(checkpoint);
+
+      // Card element
+      const card = document.createElement('div');
+      card.className = `level-card ${unlocked ? 'is-unlocked' : 'is-locked'} ${level.isFinale ? 'is-finale' : ''}`;
+      card.id = `level-card-${level.id}`;
+
+      card.innerHTML = `
+        <div class="card-panda-ears">
+          <div class="card-ear card-ear-left"></div>
+          <div class="card-ear card-ear-right"></div>
+        </div>
+
+        <div class="card-header">
+          <span class="card-day-badge">${level.dayLabel}</span>
+          <span class="card-status-badge ${unlocked ? 'status-unlocked' : 'status-locked'}" id="status-badge-${level.id}">
+            ${unlocked ? 'UNLOCKED' : '🔒 LOCKED'}
+          </span>
+        </div>
+
+        <div class="card-body">
+          <div class="card-level-num">Level 0${level.id}</div>
+          <h3 class="card-title">${level.title}</h3>
+          <p class="card-subtitle">${level.subtitle}</p>
+        </div>
+
+        <div class="card-countdown-box ${unlocked ? 'is-unlocked-state' : ''}" id="countdown-box-${level.id}">
+          <span class="countdown-label">
+            ${unlocked ? '<span>✨ Status:</span>' : '<span>⏳ Status:</span>'}
+          </span>
+          <span class="countdown-timer-value" id="countdown-val-${level.id}">
+            ${unlocked ? (isPreviewMode() ? 'Unlocked (Preview)' : 'Unlocked ✨') : remaining.text}
+          </span>
+        </div>
+
+        <div class="card-action-wrap" id="action-wrap-${level.id}">
+          ${renderActionButton(level, unlocked)}
+        </div>
+      `;
+
+      // If card is locked, attach tap feedback
+      card.addEventListener('click', (e) => {
+        // If clicking unlocked link, let navigation proceed
+        if (card.classList.contains('is-unlocked')) {
+          return;
+        }
+        e.preventDefault();
+        handleLockedCardClick(level.id);
+      });
+
+      wrapper.appendChild(card);
+      container.appendChild(wrapper);
+    });
+  }
+
+  function renderActionButton(level, unlocked) {
+    if (unlocked) {
+      return `
+        <a href="${level.url}" class="card-action-btn ${level.isFinale ? 'btn-finale' : 'btn-unlocked'}">
+          <span>Play Level 0${level.id}</span>
+          <span>→</span>
+        </a>
+      `;
+    } else {
+      return `
+        <button class="card-action-btn btn-locked" type="button">
+          <span>🔒 Locked (Opens at 12:00 AM)</span>
+        </button>
+      `;
+    }
+  }
+
+  /**
+   * Real-Time 1-Second Auto-Unlock & Countdown Update
+   */
+  function updateCountdowns() {
+    LEVELS_CONFIG.forEach(level => {
+      const isNowUnlocked = isLevelUnlocked(level.id);
+      const wasUnlocked = levelStateCache[level.id];
+
+      const valEl = document.getElementById(`countdown-val-${level.id}`);
+      const boxEl = document.getElementById(`countdown-box-${level.id}`);
+      const badgeEl = document.getElementById(`status-badge-${level.id}`);
+      const actionWrapEl = document.getElementById(`action-wrap-${level.id}`);
+      const cardEl = document.getElementById(`level-card-${level.id}`);
+      const wrapperEl = document.getElementById(`wrapper-level-${level.id}`);
+
+      // Check for exact-second transition from Locked -> Unlocked
+      if (!wasUnlocked && isNowUnlocked) {
+        levelStateCache[level.id] = true;
+
+        if (cardEl) {
+          cardEl.classList.remove('is-locked');
+          cardEl.classList.add('is-unlocked');
+          cardEl.classList.add('just-unlocked');
+          setTimeout(() => cardEl.classList.remove('just-unlocked'), 1500);
+        }
+        if (wrapperEl) {
+          wrapperEl.classList.remove('is-locked');
+          wrapperEl.classList.add('is-unlocked');
+          const checkpoint = wrapperEl.querySelector('.map-checkpoint-node');
+          if (checkpoint) checkpoint.innerHTML = '✓';
+        }
+        if (badgeEl) {
+          badgeEl.className = 'card-status-badge status-unlocked';
+          badgeEl.textContent = 'UNLOCKED';
+        }
+        if (boxEl) {
+          boxEl.classList.add('is-unlocked-state');
+        }
+        if (actionWrapEl) {
+          actionWrapEl.innerHTML = renderActionButton(level, true);
+        }
+
+        showToast(`Level 0${level.id} ("${level.title}") is now UNLOCKED! ✨`, '🎉');
+      }
+
+      // Update timer text if still locked
+      if (!isNowUnlocked) {
+        const remaining = getRemainingTime(level.id);
+        if (valEl && remaining) {
+          valEl.textContent = remaining.text;
+        }
+      } else {
+        if (valEl) {
+          valEl.textContent = isPreviewMode() ? 'Unlocked (Preview)' : 'Unlocked ✨';
+        }
+      }
+    });
+  }
+
+  /**
+   * Ambient Floating Particle & Sparkle Canvas
+   */
+  function initBackgroundParticles() {
+    const canvas = document.getElementById('particleCanvas');
+    if (!canvas) return;
+
+    const ctx = canvas.getContext('2d');
+    let width = (canvas.width = window.innerWidth);
+    let height = (canvas.height = window.innerHeight);
+
+    window.addEventListener('resize', () => {
+      width = canvas.width = window.innerWidth;
+      height = canvas.height = window.innerHeight;
+    });
+
+    const particles = [];
+    const colors = [
+      'rgba(244, 143, 177, 0.45)', // Rose Pink
+      'rgba(236, 64, 122, 0.35)',  // Deep Rose
+      'rgba(212, 175, 55, 0.5)',   // Champagne Gold
+      'rgba(243, 229, 171, 0.55)', // Light Gold
+      'rgba(255, 255, 255, 0.7)'   // Pearl White
+    ];
+
+    const particleCount = Math.min(Math.floor(width / 24), 55);
+
+    for (let i = 0; i < particleCount; i++) {
+      particles.push({
+        x: Math.random() * width,
+        y: Math.random() * height,
+        radius: Math.random() * 3 + 1.2,
+        color: colors[Math.floor(Math.random() * colors.length)],
+        vx: (Math.random() - 0.5) * 0.45,
+        vy: -Math.random() * 0.55 - 0.2, // Drift gently upwards
+        pulse: Math.random() * Math.PI,
+        pulseSpeed: 0.02 + Math.random() * 0.02
+      });
+    }
+
+    function renderParticles() {
+      ctx.clearRect(0, 0, width, height);
+
+      particles.forEach(p => {
+        p.x += p.vx;
+        p.y += p.vy;
+        p.pulse += p.pulseSpeed;
+
+        if (p.y < -10) {
+          p.y = height + 10;
+          p.x = Math.random() * width;
+        }
+        if (p.x < -10) p.x = width + 10;
+        if (p.x > width + 10) p.x = -10;
+
+        const currentRadius = p.radius + Math.sin(p.pulse) * 0.6;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, Math.max(0.5, currentRadius), 0, Math.PI * 2);
+        ctx.fillStyle = p.color;
+        ctx.shadowBlur = 10;
+        ctx.shadowColor = p.color;
+        ctx.fill();
+      });
+
+      requestAnimationFrame(renderParticles);
+    }
+
+    renderParticles();
+  }
+
+  // Public API
+  return {
+    LEVELS_CONFIG,
+    isPreviewMode,
+    setPreviewMode,
+    exitPreviewMode,
+    isLevelUnlocked,
+    getRemainingTime,
+    showToast,
+    guardLevel,
+    initHub,
+    initPreviewBanner,
+    initBackgroundParticles
+  };
+})();
+
+// Attach to window for global access across all pages
+window.PandaLock = PandaLock;
