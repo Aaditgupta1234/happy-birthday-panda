@@ -9,54 +9,693 @@
   <!-- Luxe Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600;700&family=Playfair+Display:ital,wght@0,500;0,600;0,700;0,800;1,400&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600;700&family=Playfair+Display:ital,wght@0,500;0,600;0,700;0,800;0,900;1,400&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
+  <!-- Main Luxe Panda Stylesheet -->
   <link rel="stylesheet" href="../css/style.css">
 
-  <!-- Direct URL Guard -->
+  <!-- Direct URL Guard (Executes immediately) -->
   <script src="../js/lockManager.js"></script>
   <script>
+    // Enforce URL Guard for Level 5: redirects to ../index.html if locked & not in preview mode
     PandaLock.guardLevel(5);
   </script>
 </head>
 <body>
+  <!-- Ambient Background Particles Canvas -->
   <canvas id="particleCanvas"></canvas>
 
-  <div class="level-page-container">
+  <!-- Full-Screen Confetti Celebration Canvas -->
+  <canvas id="confettiCanvas"></canvas>
+
+  <div class="level-page-container" style="max-width: 860px;">
+    
+    <!-- Top Bar Navigation -->
     <nav class="level-top-nav">
-      <a href="../index.html" class="back-to-map-btn">
+      <a href="../index.html" class="back-to-map-btn" id="backToMapLink">
         <span>←</span>
         <span>Back to Countdown Map</span>
       </a>
-      <span class="card-day-badge" style="background: linear-gradient(135deg, #F3E5AB, #D4AF37); color: #1E1E24; font-weight: 800;">
-        👑 Grand Finale
-      </span>
+
+      <div style="display: flex; align-items: center; gap: 0.8rem;">
+        <button class="sound-toggle-btn" id="soundToggleBtn" type="button" aria-label="Toggle Sound">
+          <span id="soundIcon">🔊</span>
+          <span id="soundLabel">Sound On</span>
+        </button>
+        <span class="card-day-badge" style="background: linear-gradient(135deg, #F3E5AB, #D4AF37); color: #1E1E24; font-weight: 800;">
+          DAY 5 — GRAND FINALE 🎂
+        </span>
+      </div>
     </nav>
 
-    <main class="level-content-card" style="border: 2px solid #D4AF37; box-shadow: 0 0 35px rgba(212, 175, 55, 0.35);">
+    <!-- Finale Hero Header Section -->
+    <header class="finale-hero-card">
       <div class="card-panda-ears">
         <div class="card-ear card-ear-left"></div>
         <div class="card-ear card-ear-right"></div>
       </div>
 
-      <div class="level-badge-pill">🎂 Day 5 — Grand Birthday Finale 🎂</div>
-      <h1 class="level-heading" style="color: #EC407A;">Happy Birthday, Panda! 🎉</h1>
-      <p class="level-script-sub">The grand birthday celebration & letter</p>
+      <div class="level-badge-pill" style="background: linear-gradient(135deg, #F3E5AB, #D4AF37);">
+        👑 December 5, 2026 • The Big Day Has Arrived 👑
+      </div>
+      
+      <h1 class="level-heading" style="color: var(--rose-deep); font-size: clamp(2.4rem, 5vw, 3.4rem); margin-bottom: 0.4rem;">
+        Happy Birthday, Panda! 🎂
+      </h1>
+      
+      <p class="level-script-sub" style="font-size: 1.9rem; margin-bottom: 1.2rem;">
+        December 5th • Chapter of Wonders & Celebrations
+      </p>
 
-      <div class="level-preview-notice" style="background: rgba(254, 243, 199, 0.4); border-color: #D4AF37;">
-        <p>👑 <strong>IT'S YOUR BIRTHDAY!</strong> 🐼✨</p>
-        <p style="margin-top: 0.6rem; color: #6B6875;">
-          The ultimate milestone is unlocked! Phase 2 will feature the interactive birthday cake cutting, fireworks, and the grand heartfelt letter.
+      <p style="color: var(--panda-charcoal); max-width: 580px; margin: 0 auto; font-size: 0.98rem; line-height: 1.65;">
+        You've walked through all 5 days of the countdown—and now, the clock has struck midnight! Make a wish, blow out the 5 birthday candles on your cake, and unlock your grand keepsake letter!
+      </p>
+    </header>
+
+    <!-- Interactive 3-Tier Birthday Cake Stage -->
+    <section class="cake-stage-container" id="cakeSection">
+      
+      <div class="cake-instructions-pill" id="cakeStatusPill">
+        <span>🕯️ Tap candles to make a wish & blow them out:</span>
+        <strong id="candlesCountDisplay">5 / 5 Lit</strong>
+      </div>
+
+      <div class="cake-structure">
+        
+        <!-- Crowned Panda Cake Topper -->
+        <div class="cake-topper-panda" title="Panda Cake Topper">
+          <svg viewBox="0 0 100 100" width="100%" height="100%">
+            <!-- Ears -->
+            <circle cx="28" cy="38" r="14" fill="#1E1E24" />
+            <circle cx="72" cy="38" r="14" fill="#1E1E24" />
+            <circle cx="28" cy="38" r="7" fill="#F48FB1" />
+            <circle cx="72" cy="38" r="7" fill="#F48FB1" />
+            <!-- Head -->
+            <ellipse cx="50" cy="58" rx="34" ry="28" fill="#FFF8FA" stroke="#1E1E24" stroke-width="2.5" />
+            <!-- Eye Patches -->
+            <ellipse cx="36" cy="55" rx="9" ry="11" fill="#1E1E24" transform="rotate(-15 36 55)" />
+            <ellipse cx="64" cy="55" rx="9" ry="11" fill="#1E1E24" transform="rotate(15 64 55)" />
+            <circle cx="37" cy="54" r="3.5" fill="#FFF" />
+            <circle cx="63" cy="54" r="3.5" fill="#FFF" />
+            <!-- Cheeks & Nose -->
+            <ellipse cx="28" cy="64" rx="6" ry="4" fill="#F48FB1" opacity="0.8" />
+            <ellipse cx="72" cy="64" rx="6" ry="4" fill="#F48FB1" opacity="0.8" />
+            <ellipse cx="50" cy="62" rx="4" ry="3" fill="#1E1E24" />
+            <!-- Gold Birthday Crown -->
+            <polygon points="50,14 36,32 43,34 50,22 57,34 64,32" fill="url(#goldCrownGrad)" stroke="#AA820A" stroke-width="1.5" />
+            <defs>
+              <linearGradient id="goldCrownGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#F3E5AB" />
+                <stop offset="100%" stop-color="#D4AF37" />
+              </linearGradient>
+            </defs>
+          </svg>
+        </div>
+
+        <!-- 5 Lit Birthday Candles Row -->
+        <div class="candles-row" id="candlesRow">
+          
+          <!-- Candle 1 -->
+          <div class="cake-candle" id="candle-1" onclick="BirthdayCakeApp.blowCandle(1)" title="Blow out Candle 1">
+            <div class="candle-wick"></div>
+            <div class="candle-flame" id="flame-1"></div>
+          </div>
+
+          <!-- Candle 2 -->
+          <div class="cake-candle" id="candle-2" onclick="BirthdayCakeApp.blowCandle(2)" title="Blow out Candle 2">
+            <div class="candle-wick"></div>
+            <div class="candle-flame" id="flame-2"></div>
+          </div>
+
+          <!-- Candle 3 -->
+          <div class="cake-candle" id="candle-3" onclick="BirthdayCakeApp.blowCandle(3)" title="Blow out Candle 3">
+            <div class="candle-wick"></div>
+            <div class="candle-flame" id="flame-3"></div>
+          </div>
+
+          <!-- Candle 4 -->
+          <div class="cake-candle" id="candle-4" onclick="BirthdayCakeApp.blowCandle(4)" title="Blow out Candle 4">
+            <div class="candle-wick"></div>
+            <div class="candle-flame" id="flame-4"></div>
+          </div>
+
+          <!-- Candle 5 -->
+          <div class="cake-candle" id="candle-5" onclick="BirthdayCakeApp.blowCandle(5)" title="Blow out Candle 5">
+            <div class="candle-wick"></div>
+            <div class="candle-flame" id="flame-5"></div>
+          </div>
+
+        </div>
+
+        <!-- 3-Tier Cake Body -->
+        <div class="cake-tier cake-tier-top"></div>
+        <div class="cake-tier cake-tier-mid"></div>
+        <div class="cake-tier cake-tier-bottom"></div>
+
+        <!-- Luxury Gold Cake Stand -->
+        <div class="cake-stand-plate"></div>
+        <div class="cake-stand-pedestal"></div>
+        <div class="cake-stand-base"></div>
+
+      </div>
+
+      <!-- Quick Action Button -->
+      <button class="btn-blow-candles" id="blowAllCandlesBtn" type="button" onclick="BirthdayCakeApp.blowAllCandles()">
+        <span>💨 Make a Wish & Blow Out All Candles</span>
+      </button>
+    </section>
+
+    <!-- Grand Birthday Keepsake Letter & Finale Section -->
+    <section class="grand-keepsake-section" id="grandKeepsakeSection">
+      
+      <article class="grand-letter-card">
+        <!-- Corner Flourishes -->
+        <div class="parchment-corner parchment-corner-tl"></div>
+        <div class="parchment-corner parchment-corner-tr"></div>
+        <div class="parchment-corner parchment-corner-bl"></div>
+        <div class="parchment-corner parchment-corner-br"></div>
+
+        <div class="letter-date-pill">December 05, 2026 • The Grand Birthday Finale</div>
+
+        <h2 class="letter-salutation">Happy Birthday, My Favorite Panda! 🎂✨</h2>
+
+        <p class="letter-body-text">
+          [EDIT HERE: "Happy, happy birthday to the most iconic, hilarious, thoughtful, and genuinely wonderful best friend in the world! Today is all about celebrating you, the joy you bring into every room, and the incredible human you are."]
         </p>
-      </div>
 
-      <div style="margin-top: 2.5rem;">
-        <a href="../index.html" class="card-action-btn btn-finale" style="max-width: 280px; margin: 0 auto;">
-          <span>Return to Map ✨</span>
-        </a>
-      </div>
-    </main>
+        <p class="letter-body-text">
+          Looking back over this past year, some of my favorite moments have been the simplest ones with you—[EDIT HERE: mention your standout shared highlights, late-night laughs, silly road trips, or unprovoked chaotic debriefs from the year].
+        </p>
+
+        <blockquote class="letter-highlight-quote">
+          "In a world that is always moving too fast, your friendship is my favorite anchor. You make everything ten times more fun, and having you as a best friend is something I will celebrate every single day."
+        </blockquote>
+
+        <p class="letter-body-text">
+          As you blow out your candles and step into this brand new age, my wish for you is simple: [EDIT HERE: write your personal birthday wishes—e.g. effortless success, endless laughter, spontaneous adventures, peace of mind, and all your biggest goals coming to life].
+        </p>
+
+        <p class="letter-body-text">
+          Thank you for being the realest, funniest, and most irreplaceable bestie. Here is to celebrating today, tomorrow, and a lifetime of adventures together!
+        </p>
+
+        <div class="letter-signoff">
+          With endless laughs, bamboo-sized hugs,<br>
+          & All My Love for Your Birthday,<br>
+          Forever Your Partner in Crime 🐼💖🎉
+        </div>
+
+        <!-- Finale Action Buttons -->
+        <div class="grand-letter-actions">
+          <button class="btn-replay-confetti" type="button" onclick="BirthdayCakeApp.triggerConfettiShower()">
+            <span>🎉 Replay Confetti</span>
+            <span>✨</span>
+          </button>
+
+          <button class="btn-complete-level" id="completeDay5Btn" type="button">
+            <span>Complete 5-Day Odyssey & Return to Map</span>
+            <span>🏆</span>
+          </button>
+        </div>
+
+      </article>
+
+    </section>
+
   </div>
+
+  <!-- Background Music Audio Element with Smart Fallback -->
+  <audio id="bgMusic" loop preload="auto" src="../assets/level5-song.mp3"></audio>
+
+  <!-- Toast Container -->
+  <div class="panda-toast-container"></div>
+
+  <!-- Audio, Cake & Confetti Script -->
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      // 1. Web Audio API Sound Effects & "Happy Birthday" Melody Synthesizer
+      const SoundFX = (function () {
+        let audioCtx = null;
+        let isMuted = false;
+
+        function getAudioContext() {
+          if (!audioCtx) {
+            const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+            if (AudioContextClass) {
+              audioCtx = new AudioContextClass();
+            }
+          }
+          if (audioCtx && audioCtx.state === 'suspended') {
+            audioCtx.resume();
+          }
+          return audioCtx;
+        }
+
+        // Entrance Celebratory Chime: C5 -> E5 -> G5 -> C6
+        function playWelcomeChime() {
+          if (isMuted) return;
+          const ctx = getAudioContext();
+          if (!ctx) return;
+
+          const now = ctx.currentTime;
+          const notes = [
+            { f: 523.25, t: 0.0, d: 0.4 },  // C5
+            { f: 659.25, t: 0.12, d: 0.42 }, // E5
+            { f: 783.99, t: 0.24, d: 0.45 }, // G5
+            { f: 1046.50, t: 0.38, d: 0.8 }  // C6 (held bell)
+          ];
+
+          notes.forEach(n => {
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(n.f, now + n.t);
+
+            gain.gain.setValueAtTime(0, now + n.t);
+            gain.gain.linearRampToValueAtTime(0.2, now + n.t + 0.02);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + n.t + n.d);
+
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.start(now + n.t);
+            osc.stop(now + n.t + n.d);
+          });
+        }
+
+        // Gentle Candle Blow-Out Air Puff Sound
+        function playBlowOutSound() {
+          if (isMuted) return;
+          const ctx = getAudioContext();
+          if (!ctx) return;
+
+          const now = ctx.currentTime;
+          const bufferSize = ctx.sampleRate * 0.18; // 180ms
+          const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+          const data = buffer.getChannelData(0);
+
+          for (let i = 0; i < bufferSize; i++) {
+            data[i] = (Math.random() * 2 - 1) * Math.exp(-i / (bufferSize * 0.35));
+          }
+
+          const noise = ctx.createBufferSource();
+          noise.buffer = buffer;
+
+          const filter = ctx.createBiquadFilter();
+          filter.type = 'lowpass';
+          filter.frequency.setValueAtTime(800, now);
+          filter.frequency.exponentialRampToValueAtTime(250, now + 0.17);
+
+          const gain = ctx.createGain();
+          gain.gain.setValueAtTime(0.22, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.18);
+
+          noise.connect(filter);
+          filter.connect(gain);
+          gain.connect(ctx.destination);
+          noise.start(now);
+        }
+
+        // Grand Sparkle & Applause Fanfare when all 5 candles are out
+        function playGrandCelebrationBurst() {
+          if (isMuted) return;
+          const ctx = getAudioContext();
+          if (!ctx) return;
+
+          const now = ctx.currentTime;
+          const fanfare = [
+            { f: 523.25, t: 0.0, d: 0.2 },   // C5
+            { f: 659.25, t: 0.12, d: 0.2 },  // E5
+            { f: 783.99, t: 0.24, d: 0.25 }, // G5
+            { f: 1046.50, t: 0.38, d: 0.3 }, // C6
+            { f: 1318.51, t: 0.52, d: 0.4 }, // E6
+            { f: 1567.98, t: 0.68, d: 0.9 }  // G6
+          ];
+
+          fanfare.forEach(n => {
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(n.f, now + n.t);
+
+            gain.gain.setValueAtTime(0, now + n.t);
+            gain.gain.linearRampToValueAtTime(0.22, now + n.t + 0.02);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + n.t + n.d);
+
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.start(now + n.t);
+            osc.stop(now + n.t + n.d);
+          });
+        }
+
+        // Complete Web Audio API Music-Box Rendition of "Happy Birthday to You"
+        function playHappyBirthdayMelody() {
+          if (isMuted) return;
+          const ctx = getAudioContext();
+          if (!ctx) return;
+
+          const now = ctx.currentTime;
+
+          // Notes for "Happy Birthday to You" in Key of F
+          // F4 = 349.23, G4 = 392.00, A4 = 440.00, Bb4 = 466.16, C5 = 523.25, D5 = 587.33, F5 = 698.46
+          const melody = [
+            // "Hap-py Birth-day to you"
+            { f: 392.00, t: 0.0, d: 0.25 },  // G4
+            { f: 392.00, t: 0.3, d: 0.25 },  // G4
+            { f: 440.00, t: 0.6, d: 0.5 },   // A4
+            { f: 392.00, t: 1.2, d: 0.5 },   // G4
+            { f: 523.25, t: 1.8, d: 0.5 },   // C5
+            { f: 493.88, t: 2.4, d: 0.9 },   // B4
+
+            // "Hap-py Birth-day to you"
+            { f: 392.00, t: 3.5, d: 0.25 },  // G4
+            { f: 392.00, t: 3.8, d: 0.25 },  // G4
+            { f: 440.00, t: 4.1, d: 0.5 },   // A4
+            { f: 392.00, t: 4.7, d: 0.5 },   // G4
+            { f: 587.33, t: 5.3, d: 0.5 },   // D5
+            { f: 523.25, t: 5.9, d: 0.9 },   // C5
+
+            // "Hap-py Birth-day dear Pan-da"
+            { f: 392.00, t: 7.0, d: 0.25 },  // G4
+            { f: 392.00, t: 7.3, d: 0.25 },  // G4
+            { f: 783.99, t: 7.6, d: 0.6 },   // G5
+            { f: 659.25, t: 8.3, d: 0.5 },   // E5
+            { f: 523.25, t: 8.9, d: 0.5 },   // C5
+            { f: 493.88, t: 9.5, d: 0.5 },   // B4
+            { f: 440.00, t: 10.1, d: 0.9 },  // A4
+
+            // "Hap-py Birth-day to you!"
+            { f: 698.46, t: 11.2, d: 0.28 }, // F5
+            { f: 698.46, t: 11.5, d: 0.28 }, // F5
+            { f: 659.25, t: 11.9, d: 0.6 },  // E5
+            { f: 523.25, t: 12.6, d: 0.5 },  // C5
+            { f: 587.33, t: 13.2, d: 0.6 },  // D5
+            { f: 523.25, t: 13.9, d: 1.5 }   // C5 (held bell finale)
+          ];
+
+          melody.forEach(n => {
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+
+            // Celesta / Music box character: triangle wave
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(n.f, now + n.t);
+
+            gain.gain.setValueAtTime(0, now + n.t);
+            gain.gain.linearRampToValueAtTime(0.24, now + n.t + 0.02);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + n.t + n.d);
+
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.start(now + n.t);
+            osc.stop(now + n.t + n.d);
+          });
+        }
+
+        function toggleMute() {
+          isMuted = !isMuted;
+          return isMuted;
+        }
+
+        function getMuted() {
+          return isMuted;
+        }
+
+        return {
+          getAudioContext,
+          playWelcomeChime,
+          playBlowOutSound,
+          playGrandCelebrationBurst,
+          playHappyBirthdayMelody,
+          toggleMute,
+          getMuted
+        };
+      })();
+
+      // 2. Full-Screen Confetti Shower Engine
+      const ConfettiEngine = (function () {
+        const canvas = document.getElementById('confettiCanvas');
+        const ctx = canvas.getContext('2d');
+        let width = (canvas.width = window.innerWidth);
+        let height = (canvas.height = window.innerHeight);
+
+        window.addEventListener('resize', () => {
+          width = canvas.width = window.innerWidth;
+          height = canvas.height = window.innerHeight;
+        });
+
+        let particles = [];
+        let animationId = null;
+
+        const colors = [
+          '#EC407A', // Deep rose
+          '#F48FB1', // Rose pink
+          '#D4AF37', // Metallic gold
+          '#F3E5AB', // Champagne gold
+          '#FFFFFF', // Pearl white
+          '#1E1E24'  // Panda charcoal
+        ];
+
+        function launch(count = 140) {
+          for (let i = 0; i < count; i++) {
+            particles.push({
+              x: width * 0.5 + (Math.random() - 0.5) * 200,
+              y: height * 0.45,
+              vx: (Math.random() - 0.5) * 16,
+              vy: -Math.random() * 16 - 4,
+              size: Math.random() * 8 + 5,
+              color: colors[Math.floor(Math.random() * colors.length)],
+              rotation: Math.random() * 360,
+              rotSpeed: (Math.random() - 0.5) * 14,
+              life: 1,
+              decay: 0.006 + Math.random() * 0.006
+            });
+          }
+
+          if (!animationId) {
+            runLoop();
+          }
+        }
+
+        function runLoop() {
+          ctx.clearRect(0, 0, width, height);
+
+          for (let i = particles.length - 1; i >= 0; i--) {
+            const p = particles[i];
+            p.x += p.vx;
+            p.y += p.vy;
+            p.vy += 0.35; // gravity
+            p.rotation += p.rotSpeed;
+            p.life -= p.decay;
+
+            ctx.save();
+            ctx.globalAlpha = Math.max(0, p.life);
+            ctx.translate(p.x, p.y);
+            ctx.rotate((p.rotation * Math.PI) / 180);
+            ctx.fillStyle = p.color;
+            ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size * 0.7);
+            ctx.restore();
+
+            if (p.life <= 0 || p.y > height + 20) {
+              particles.splice(i, 1);
+            }
+          }
+
+          if (particles.length > 0) {
+            animationId = requestAnimationFrame(runLoop);
+          } else {
+            animationId = null;
+            ctx.clearRect(0, 0, width, height);
+          }
+        }
+
+        return {
+          launch
+        };
+      })();
+
+      // 3. Birthday Cake & Candle App Controller
+      const BirthdayCakeApp = (function () {
+        let extinguishedCount = 0;
+        const TOTAL_CANDLES = 5;
+        const extinguishedSet = new Set();
+        const candlesDisplay = document.getElementById('candlesCountDisplay');
+        const cakeStatusPill = document.getElementById('cakeStatusPill');
+        const keepsakeSection = document.getElementById('grandKeepsakeSection');
+        const blowAllBtn = document.getElementById('blowAllCandlesBtn');
+        const audioEl = document.getElementById('bgMusic');
+
+        // Check if level was previously completed
+        if (PandaLock.isLevelCompleted(5)) {
+          for (let i = 1; i <= TOTAL_CANDLES; i++) {
+            extinguishedSet.add(i);
+            const flame = document.getElementById(`flame-${i}`);
+            if (flame) flame.classList.add('is-extinguished');
+          }
+          extinguishedCount = TOTAL_CANDLES;
+          candlesDisplay.textContent = 'All 5 Extinguished (Wish Granted! ✨)';
+          cakeStatusPill.style.background = 'rgba(240, 253, 244, 0.95)';
+          cakeStatusPill.style.borderColor = '#10B981';
+          blowAllBtn.style.display = 'none';
+          keepsakeSection.classList.add('is-revealed');
+        }
+
+        function createSmokePuff(candleEl) {
+          const puff = document.createElement('div');
+          puff.className = 'smoke-puff';
+          candleEl.appendChild(puff);
+          setTimeout(() => puff.remove(), 1200);
+        }
+
+        function blowCandle(id) {
+          if (extinguishedSet.has(id)) return;
+          extinguishedSet.add(id);
+          extinguishedCount++;
+
+          const flame = document.getElementById(`flame-${id}`);
+          const candle = document.getElementById(`candle-${id}`);
+          if (flame) flame.classList.add('is-extinguished');
+          if (candle) createSmokePuff(candle);
+
+          // Sound effect
+          SoundFX.playBlowOutSound();
+
+          const remaining = TOTAL_CANDLES - extinguishedCount;
+          if (remaining > 0) {
+            candlesDisplay.textContent = `${remaining} Remaining`;
+            PandaLock.showToast(`Puff! ${remaining} candle${remaining > 1 ? 's' : ''} left to blow out ✨`, '💨');
+          } else {
+            triggerGrandFinale();
+          }
+        }
+
+        function blowAllCandles() {
+          if (extinguishedCount >= TOTAL_CANDLES) return;
+
+          let delay = 0;
+          for (let i = 1; i <= TOTAL_CANDLES; i++) {
+            if (!extinguishedSet.has(i)) {
+              setTimeout(() => {
+                blowCandle(i);
+              }, delay);
+              delay += 250;
+            }
+          }
+        }
+
+        function triggerGrandFinale() {
+          candlesDisplay.textContent = 'All 5 Extinguished (Wish Granted! ✨)';
+          cakeStatusPill.style.background = 'rgba(240, 253, 244, 0.95)';
+          cakeStatusPill.style.borderColor = '#10B981';
+          blowAllBtn.style.display = 'none';
+
+          // Sound fanfare
+          SoundFX.playGrandCelebrationBurst();
+
+          // Full-screen confetti shower
+          ConfettiEngine.launch(180);
+
+          // Play Birthday Melody via Audio or Web Audio Synthesis
+          setTimeout(() => {
+            if (audioEl) {
+              audioEl.volume = 0.35;
+              const p = audioEl.play();
+              if (p !== undefined) {
+                p.catch(() => {
+                  // Fall back to synthesized Web Audio "Happy Birthday" melody
+                  SoundFX.playHappyBirthdayMelody();
+                });
+              }
+            } else {
+              SoundFX.playHappyBirthdayMelody();
+            }
+          }, 600);
+
+          // Reveal Keepsake Letter
+          setTimeout(() => {
+            keepsakeSection.classList.add('is-revealed');
+            keepsakeSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            PandaLock.showToast('Happy Birthday Panda! The 5-Day Odyssey is complete 👑🎂', '🎉');
+          }, 1000);
+        }
+
+        function triggerConfettiShower() {
+          ConfettiEngine.launch(150);
+          SoundFX.playGrandCelebrationBurst();
+          PandaLock.showToast('Confetti shower! 🎊✨', '🎉');
+        }
+
+        return {
+          blowCandle,
+          blowAllCandles,
+          triggerConfettiShower
+        };
+      })();
+
+      // Expose to window for inline onclick handlers
+      window.BirthdayCakeApp = BirthdayCakeApp;
+
+      // 4. Welcome Chime & Autoplay Handling
+      let welcomeChimePlayed = false;
+      function tryWelcome() {
+        if (welcomeChimePlayed) return;
+        const ctx = SoundFX.getAudioContext();
+        if (ctx && ctx.state === 'running') {
+          welcomeChimePlayed = true;
+          SoundFX.playWelcomeChime();
+        }
+      }
+      tryWelcome();
+
+      const unlockAudio = () => {
+        SoundFX.getAudioContext();
+        if (!welcomeChimePlayed) tryWelcome();
+        window.removeEventListener('pointerdown', unlockAudio);
+        window.removeEventListener('keydown', unlockAudio);
+      };
+      window.addEventListener('pointerdown', unlockAudio);
+      window.addEventListener('keydown', unlockAudio);
+
+      // Sound Toggle Button Handler
+      const soundToggleBtn = document.getElementById('soundToggleBtn');
+      const soundIcon = document.getElementById('soundIcon');
+      const soundLabel = document.getElementById('soundLabel');
+
+      soundToggleBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        SoundFX.getAudioContext();
+        const muted = SoundFX.toggleMute();
+        const audioEl = document.getElementById('bgMusic');
+        if (audioEl) audioEl.muted = muted;
+
+        if (muted) {
+          soundToggleBtn.classList.add('is-muted');
+          soundIcon.textContent = '🔇';
+          soundLabel.textContent = 'Muted';
+          PandaLock.showToast('Sound Muted 🔇', '🎵');
+        } else {
+          soundToggleBtn.classList.remove('is-muted');
+          soundIcon.textContent = '🔊';
+          soundLabel.textContent = 'Sound On';
+          SoundFX.playWelcomeChime();
+          PandaLock.showToast('Sound Enabled 🔊', '🎵');
+        }
+      });
+
+      // 5. Complete Level 5 & Return to Map
+      const completeDay5Btn = document.getElementById('completeDay5Btn');
+      if (completeDay5Btn) {
+        completeDay5Btn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          PandaLock.completeLevel(5);
+          PandaLock.showToast('The 5-Day Odyssey is Complete! Returning to Map... 👑💖', '🏆');
+
+          setTimeout(() => {
+            window.location.href = '../index.html';
+          }, 1200);
+        });
+      }
+    });
+  </script>
 </body>
 </html>
-
