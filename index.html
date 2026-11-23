@@ -344,10 +344,10 @@
               <span class="star-icon">✨</span> THE BIRTHDAY STAR <span class="star-icon">✨</span>
             </div>
 
-            <h2 class="showcase-heading">[EDIT HERE: Panda's Spotlight Title]</h2>
+            <h2 class="showcase-heading">Queen of Smiles & Good Vibes 👑</h2>
             
             <p class="showcase-bio">
-              [EDIT HERE: A short hype note about why she's the best]
+              Certified chaos partner, non-stop laugh factory, and the best friend anyone could ever ask for. Get ready—the next 5 days are all about celebrating you!
             </p>
 
             <div class="showcase-traits">
@@ -470,6 +470,12 @@
 
     // Initialize Hub on DOM Ready
     document.addEventListener('DOMContentLoaded', () => {
+      // Ensure page always starts at top on load/reload
+      if ('scrollRestoration' in history) {
+        history.scrollRestoration = 'manual';
+      }
+      window.scrollTo(0, 0);
+
       PandaLock.initHub();
       updateIstClock();
       setInterval(updateIstClock, 1000);

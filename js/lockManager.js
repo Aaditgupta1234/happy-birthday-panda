@@ -313,8 +313,11 @@ const PandaLock = (function () {
     setTimeout(() => {
       if (gate) {
         gate.classList.add('gate-fade-out');
+        document.body.classList.remove('application-gate-active');
+        window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
         setTimeout(() => {
           gate.style.display = 'none';
+          window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
         }, 650);
       }
     }, 900);
@@ -336,9 +339,12 @@ const PandaLock = (function () {
 
     if (isApplicationAccepted()) {
       gate.style.display = 'none';
+      document.body.classList.remove('application-gate-active');
     } else {
       gate.style.display = 'flex';
       gate.classList.remove('gate-fade-out');
+      document.body.classList.add('application-gate-active');
+      window.scrollTo(0, 0);
       if (card) {
         card.classList.remove('app-card-accepted');
       }
