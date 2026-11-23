@@ -76,6 +76,7 @@ const PandaLock = (function () {
 
   const PREVIEW_STORAGE_KEY = 'panda_creator_preview_mode';
   const VAULT_STORAGE_KEY = 'panda_vault_unlocked';
+  const APPLICATION_STORAGE_KEY = 'panda_application_accepted';
   
   // Master Password Gate (Case-insensitive: accepts 'panda', 'PANDA', 'Panda', etc.)
   // Edit this secret code anytime!
@@ -84,10 +85,280 @@ const PandaLock = (function () {
   // In-memory vault state: resets to locked on every page refresh/reload
   let isVaultSessionUnlocked = false;
 
+  // "Birthday Ki Application" state
+  let noClickCount = 0;
+  const NO_PLEAS = [
+    "No 🙈",
+    "Are you sure? 🥺",
+    "Soch lo Panda! 🐼",
+    "Aise mat karo 😭",
+    "Click Yes na! ✨",
+    "Error 404: No not allowed 🙈",
+    "Pakka no? 🥺👉👈",
+    "Dil tod doge kya? 💔",
+    "Ab toh Yes dabana padega! 💖"
+  ];
+
   let levelStateCache = {};
   let intervalTimer = null;
   let mascotTapCount = 0;
   let mascotTapTimer = null;
+
+  /**
+   * Helper: Check if Birthday Ki Application has been accepted
+   * Bypassed automatically in Creator Preview Mode
+   */
+  function isApplicationAccepted() {
+    if (isPreviewMode()) return true;
+    try {
+      return localStorage.getItem(APPLICATION_STORAGE_KEY) === 'true';
+    } catch (e) {
+      return false;
+    }
+  }
+
+  /**
+   * Play playful low "boop" sound when clicking "No"
+   */
+  function playCuteBoopSound() {
+    try {
+      const AudioCtx = window.AudioContext || window.webkitAudioContext;
+      if (!AudioCtx) return;
+      const ctx = new AudioCtx();
+      if (ctx.state === 'suspended') ctx.resume();
+
+      const now = ctx.currentTime;
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+
+      osc.type = 'triangle';
+      // Descending boop 270Hz -> 160Hz
+      osc.frequency.setValueAtTime(270, now);
+      osc.frequency.exponentialRampToValueAtTime(150, now + 0.17);
+
+      gain.gain.setValueAtTime(0.01, now);
+      gain.gain.linearRampToValueAtTime(0.25, now + 0.02);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.19);
+
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+
+      osc.start(now);
+      osc.stop(now + 0.22);
+    } catch (e) {
+      console.warn('AudioContext error', e);
+    }
+  }
+
+  /**
+   * Play celebratory sparkling chime on "Yes"
+   */
+  function playApplicationCelebrateSound() {
+    try {
+      const AudioCtx = window.AudioContext || window.webkitAudioContext;
+      if (!AudioCtx) return;
+      const ctx = new AudioCtx();
+      if (ctx.state === 'suspended') ctx.resume();
+
+      const now = ctx.currentTime;
+      const freqs = [523.25, 659.25, 783.99, 987.77, 1046.50];
+      freqs.forEach((freq, idx) => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(freq, now + idx * 0.1);
+
+        gain.gain.setValueAtTime(0.001, now + idx * 0.1);
+        gain.gain.linearRampToValueAtTime(0.28, now + idx * 0.1 + 0.02);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.1 + 0.58);
+
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+
+        osc.start(now + idx * 0.1);
+        osc.stop(now + idx * 0.1 + 0.65);
+      });
+    } catch (e) {
+      console.warn('AudioContext error', e);
+    }
+  }
+
+  /**
+   * Confetti shower on application canvas
+   */
+  function fireApplicationConfetti() {
+    const canvas = document.getElementById('appConfettiCanvas');
+    if (!canvas) return;
+
+    const ctx = canvas.getContext('2d');
+    const width = (canvas.width = window.innerWidth);
+    const height = (canvas.height = window.innerHeight);
+
+    const particles = [];
+    const colors = ['#EC407A', '#F48FB1', '#D4AF37', '#F3E5AB', '#FFFFFF', '#B3E5FC'];
+
+    for (let i = 0; i < 90; i++) {
+      particles.push({
+        x: width / 2 + (Math.random() - 0.5) * 200,
+        y: height / 2 - 50 + (Math.random() - 0.5) * 80,
+        vx: (Math.random() - 0.5) * 12,
+        vy: -Math.random() * 9 - 4,
+        size: Math.random() * 7 + 4,
+        color: colors[Math.floor(Math.random() * colors.length)],
+        rotation: Math.random() * 360,
+        rotSpeed: (Math.random() - 0.5) * 12,
+        gravity: 0.32,
+        alpha: 1
+      });
+    }
+
+    let frame = 0;
+    function anim() {
+      ctx.clearRect(0, 0, width, height);
+      particles.forEach(p => {
+        p.x += p.vx;
+        p.y += p.vy;
+        p.vy += p.gravity;
+        p.rotation += p.rotSpeed;
+        p.alpha -= 0.012;
+
+        ctx.save();
+        ctx.translate(p.x, p.y);
+        ctx.rotate((p.rotation * Math.PI) / 180);
+        ctx.fillStyle = p.color;
+        ctx.globalAlpha = Math.max(0, p.alpha);
+        ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size * 0.7);
+        ctx.restore();
+      });
+
+      frame++;
+      if (frame < 90) {
+        requestAnimationFrame(anim);
+      } else {
+        ctx.clearRect(0, 0, width, height);
+      }
+    }
+    anim();
+  }
+
+  /**
+   * Handle Clicking "No" Button
+   * Shrinks "No" step-by-step, grows "Yes", cycles funny pleas
+   */
+  function handleApplicationNo() {
+    noClickCount++;
+    playCuteBoopSound();
+
+    const noBtn = document.getElementById('appNoBtn');
+    const noBtnText = document.getElementById('appNoBtnText');
+    const yesBtn = document.getElementById('appYesBtn');
+
+    if (noBtnText) {
+      const pleaIdx = Math.min(noClickCount, NO_PLEAS.length - 1);
+      noBtnText.textContent = NO_PLEAS[pleaIdx];
+    }
+
+    // Shrink "No" button step-by-step
+    if (noBtn) {
+      // Step scaling: 0.82 -> 0.65 -> 0.48 -> 0.32 -> tiny
+      const noScale = Math.max(0.18, 1 - noClickCount * 0.17);
+      noBtn.style.transform = `scale(${noScale})`;
+      if (noClickCount >= 5) {
+        noBtn.style.opacity = '0.35';
+        noBtn.style.pointerEvents = 'none';
+      }
+    }
+
+    // Grow "Yes" button larger and bolder with gold pulse
+    if (yesBtn) {
+      const yesScale = 1 + noClickCount * 0.22;
+      yesBtn.style.transform = `scale(${yesScale})`;
+      yesBtn.classList.add('yes-mega-pulse');
+    }
+
+    // Bestie playful toast
+    const playfulNotes = [
+      "Wait... Did you misclick? 🥺",
+      "Soch lo Panda, bohot pyaar se banaya hai! 🐼",
+      "No option is experiencing technical difficulties! 🙈",
+      "Aise mat karo yaarrr 😭",
+      "Only 'YES' is accepted by the Bestie Council! 📜✨"
+    ];
+    showToast(playfulNotes[Math.min(noClickCount - 1, playfulNotes.length - 1)], '🐾');
+  }
+
+  /**
+   * Handle Clicking "Yes" Button
+   * Celebratory chime, confetti, saves acceptance, fades out gate
+   */
+  function handleApplicationYes() {
+    playApplicationCelebrateSound();
+    fireApplicationConfetti();
+
+    try {
+      localStorage.setItem(APPLICATION_STORAGE_KEY, 'true');
+    } catch (e) {
+      console.warn('Could not save application state', e);
+    }
+
+    showToast('Application Accepted! 🎉 Welcome to your Birthday Odyssey, Panda 🐼✨', '💖');
+
+    const gate = document.getElementById('applicationGate');
+    const card = document.getElementById('applicationCard');
+
+    if (card) {
+      card.classList.add('app-card-accepted');
+    }
+
+    setTimeout(() => {
+      if (gate) {
+        gate.classList.add('gate-fade-out');
+        setTimeout(() => {
+          gate.style.display = 'none';
+        }, 650);
+      }
+    }, 900);
+  }
+
+  /**
+   * Initialize Application Gate on Hub Load
+   */
+  function initApplicationGate() {
+    const gate = document.getElementById('applicationGate');
+    if (!gate) return;
+
+    if (isApplicationAccepted()) {
+      gate.style.display = 'none';
+    } else {
+      gate.style.display = 'flex';
+      noClickCount = 0;
+      const noBtn = document.getElementById('appNoBtn');
+      const yesBtn = document.getElementById('appYesBtn');
+      const noBtnText = document.getElementById('appNoBtnText');
+      if (noBtn) {
+        noBtn.style.transform = 'scale(1)';
+        noBtn.style.opacity = '1';
+        noBtn.style.pointerEvents = 'auto';
+      }
+      if (yesBtn) {
+        yesBtn.style.transform = 'scale(1)';
+        yesBtn.classList.remove('yes-mega-pulse');
+      }
+      if (noBtnText) {
+        noBtnText.textContent = NO_PLEAS[0];
+      }
+    }
+  }
+
+  /**
+   * Reset application gate (helper)
+   */
+  function resetApplication() {
+    try {
+      localStorage.removeItem(APPLICATION_STORAGE_KEY);
+    } catch (e) {}
+    initApplicationGate();
+  }
 
   /**
    * Helper: Check if Password Vault is unlocked
@@ -269,15 +540,41 @@ const PandaLock = (function () {
    */
   function exitPreviewMode() {
     sessionStorage.removeItem(PREVIEW_STORAGE_KEY);
+    for (let i = 1; i <= 5; i++) {
+      sessionStorage.removeItem(`panda_preview_level_${i}_completed`);
+    }
     const url = new URL(window.location.href);
     url.searchParams.delete('preview');
     window.location.href = url.pathname + (url.search ? url.search : '');
   }
 
   /**
-   * Level Completion Tracking (localStorage)
+   * Level Completion Tracking:
+   * - In Preview Mode: completions are ONLY saved in sessionStorage for the preview session,
+   *   never polluting the real countdown for Panda.
+   * - In Live Mode: a level can only be completed if it has legitimately unlocked in real time!
    */
   function isLevelCompleted(levelId) {
+    if (isPreviewMode()) {
+      try {
+        return sessionStorage.getItem(`panda_preview_level_${levelId}_completed`) === 'true';
+      } catch (e) {
+        return false;
+      }
+    }
+
+    // In live mode: A level can ONLY be completed if it is unlocked in real time!
+    const level = LEVELS_CONFIG.find(l => l.id === levelId);
+    if (!level) return false;
+    const unlockTime = new Date(level.unlockISO).getTime();
+    if (Date.now() < unlockTime) {
+      // Future date - purge any test/preview artifacts from localStorage
+      try {
+        localStorage.removeItem(`panda_level_${levelId}_completed`);
+      } catch (e) {}
+      return false;
+    }
+
     try {
       return localStorage.getItem(`panda_level_${levelId}_completed`) === 'true';
     } catch (e) {
@@ -287,9 +584,29 @@ const PandaLock = (function () {
 
   function completeLevel(levelId) {
     try {
-      localStorage.setItem(`panda_level_${levelId}_completed`, 'true');
+      if (isPreviewMode()) {
+        // Preview mode testing ONLY records completion for the preview session!
+        sessionStorage.setItem(`panda_preview_level_${levelId}_completed`, 'true');
+      } else {
+        localStorage.setItem(`panda_level_${levelId}_completed`, 'true');
+      }
     } catch (e) {
-      console.warn('Could not save completion to localStorage', e);
+      console.warn('Could not save completion to storage', e);
+    }
+  }
+
+  /**
+   * Reset all level completions (Helper)
+   */
+  function resetAllCompletions() {
+    try {
+      for (let i = 1; i <= 5; i++) {
+        localStorage.removeItem(`panda_level_${i}_completed`);
+        sessionStorage.removeItem(`panda_preview_level_${i}_completed`);
+      }
+      return true;
+    } catch (e) {
+      return false;
     }
   }
 
@@ -523,11 +840,26 @@ const PandaLock = (function () {
       window.history.replaceState({}, document.title, window.location.pathname + newQuery);
     }
 
+    // Purge any stale preview test completions if in live mode
+    if (!isPreviewMode()) {
+      LEVELS_CONFIG.forEach(lvl => {
+        const unlockTime = new Date(lvl.unlockISO).getTime();
+        if (Date.now() < unlockTime) {
+          try {
+            localStorage.removeItem(`panda_level_${lvl.id}_completed`);
+          } catch (e) {}
+        }
+      });
+    }
+
     // Setup mascot tap listener for secret 5-tap
     const mascot = document.getElementById('pandaMascot');
     if (mascot) {
       mascot.addEventListener('click', handleMascotTap);
     }
+
+    // Initialize "Birthday Ki Application" Gate
+    initApplicationGate();
 
     // Initialize Vault Lock UI
     initVaultUI();
@@ -701,8 +1033,9 @@ const PandaLock = (function () {
           valEl.textContent = remaining.text;
         }
       } else {
+        const isComp = isLevelCompleted(level.id);
         if (valEl) {
-          valEl.textContent = isPreviewMode() ? 'Unlocked (Preview)' : 'Unlocked ✨';
+          valEl.textContent = isComp ? 'Completed ✓' : (isPreviewMode() ? 'Unlocked (Preview)' : 'Unlocked ✨');
         }
       }
     });
@@ -784,6 +1117,11 @@ const PandaLock = (function () {
     isPreviewMode,
     setPreviewMode,
     exitPreviewMode,
+    isApplicationAccepted,
+    initApplicationGate,
+    handleApplicationNo,
+    handleApplicationYes,
+    resetApplication,
     isVaultUnlocked,
     unlockVault,
     togglePasswordVisibility,
@@ -791,6 +1129,7 @@ const PandaLock = (function () {
     isLevelUnlocked,
     isLevelCompleted,
     completeLevel,
+    resetAllCompletions,
     getRemainingTime,
     showToast,
     guardLevel,
