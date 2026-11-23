@@ -138,9 +138,12 @@
     <!-- 4-Track Bestie Mixtape Grid Section -->
     <section class="mixtape-section">
       <div class="mixtape-header-row">
-        <h2 class="mixtape-section-title">The Bestie Tracklist</h2>
+        <div>
+          <h2 class="mixtape-section-title">The Bestie Tracklist</h2>
+          <p class="mixtape-subtitle" style="color: var(--panda-muted); font-size: 0.88rem; margin: 0.35rem 0 0; font-style: italic;">Play every vinyl track and flip each card to read the secret memory behind it ✨</p>
+        </div>
         <div class="mixtape-progress-badge" id="exploredBadge">
-          Explored: 0 / 4 Tracks 🎵
+          Tracks: 0/4 • Notes Read: 0/4
         </div>
       </div>
 
@@ -166,8 +169,8 @@
                 <button class="btn-play-track" type="button" onclick="TurntableApp.playTrack(1)">
                   <span>▶ Play on Vinyl</span>
                 </button>
-                <button class="btn-flip-liner" type="button" onclick="TurntableApp.flipCard(1)">
-                  <span>💌 Liner Note ↺</span>
+                <button class="btn-flip-liner is-unread-note" id="flipBtn-1" type="button" onclick="TurntableApp.flipCard(1)">
+                  <span class="unread-dot">•</span> <span>💌 Read Secret Note ↺</span>
                 </button>
               </div>
             </div>
@@ -208,8 +211,8 @@
                 <button class="btn-play-track" type="button" onclick="TurntableApp.playTrack(2)">
                   <span>▶ Play on Vinyl</span>
                 </button>
-                <button class="btn-flip-liner" type="button" onclick="TurntableApp.flipCard(2)">
-                  <span>💌 Liner Note ↺</span>
+                <button class="btn-flip-liner is-unread-note" id="flipBtn-2" type="button" onclick="TurntableApp.flipCard(2)">
+                  <span class="unread-dot">•</span> <span>💌 Read Secret Note ↺</span>
                 </button>
               </div>
             </div>
@@ -250,8 +253,8 @@
                 <button class="btn-play-track" type="button" onclick="TurntableApp.playTrack(3)">
                   <span>▶ Play on Vinyl</span>
                 </button>
-                <button class="btn-flip-liner" type="button" onclick="TurntableApp.flipCard(3)">
-                  <span>💌 Liner Note ↺</span>
+                <button class="btn-flip-liner is-unread-note" id="flipBtn-3" type="button" onclick="TurntableApp.flipCard(3)">
+                  <span class="unread-dot">•</span> <span>💌 Read Secret Note ↺</span>
                 </button>
               </div>
             </div>
@@ -292,8 +295,8 @@
                 <button class="btn-play-track" type="button" onclick="TurntableApp.playTrack(4)">
                   <span>▶ Play on Vinyl</span>
                 </button>
-                <button class="btn-flip-liner" type="button" onclick="TurntableApp.flipCard(4)">
-                  <span>💌 Liner Note ↺</span>
+                <button class="btn-flip-liner is-unread-note" id="flipBtn-4" type="button" onclick="TurntableApp.flipCard(4)">
+                  <span class="unread-dot">•</span> <span>💌 Read Secret Note ↺</span>
                 </button>
               </div>
             </div>
@@ -701,11 +704,21 @@
         let currentTrackId = 1;
         let isPlaying = false;
         let exploredTracks = new Set();
+        let readNotes = new Set();
         let usingSynthFallback = false;
 
         // Check if level was previously completed
         if (PandaLock.isLevelCompleted(3)) {
           exploredTracks = new Set([1, 2, 3, 4]);
+          readNotes = new Set([1, 2, 3, 4]);
+          for (let i = 1; i <= 4; i++) {
+            const flipBtn = document.getElementById(`flipBtn-${i}`);
+            if (flipBtn) {
+              flipBtn.classList.remove('is-unread-note');
+              flipBtn.classList.add('is-read-note');
+              flipBtn.innerHTML = '<span>✓ Note Read ↺</span>';
+            }
+          }
           updateExploredUI();
           completionRewardCard.classList.add('is-unlocked');
         }
@@ -744,6 +757,14 @@
           visualizer.classList.add('is-active');
           mainPlayIcon.textContent = '⏸';
           isPlaying = true;
+
+          // Auto-flip card to Liner Note after 1.2s delay if not flipped yet
+          setTimeout(() => {
+            const card = document.getElementById(`trackCard-${trackId}`);
+            if (card && !card.classList.contains('is-flipped')) {
+              flipCard(trackId);
+            }
+          }, 1200);
 
           // Attempt HTML Audio play; if missing, engage Lo-Fi Synth loop
           if (audioEl) {
@@ -801,17 +822,28 @@
           const card = document.getElementById(`trackCard-${trackId}`);
           if (card) {
             card.classList.toggle('is-flipped');
+            readNotes.add(trackId);
+
+            const flipBtn = document.getElementById(`flipBtn-${trackId}`);
+            if (flipBtn) {
+              flipBtn.classList.remove('is-unread-note');
+              flipBtn.classList.add('is-read-note');
+              flipBtn.innerHTML = '<span>✓ Note Read ↺</span>';
+            }
+            updateExploredUI();
           }
         }
 
         function updateExploredUI() {
-          const count = exploredTracks.size;
-          exploredBadge.textContent = `Explored: ${count} / 4 Tracks 🎵`;
+          const trackCount = exploredTracks.size;
+          const noteCount = readNotes.size;
+          exploredBadge.textContent = `Tracks: ${trackCount}/4 • Notes Read: ${noteCount}/4`;
 
-          if (count >= 4 && !completionRewardCard.classList.contains('is-unlocked')) {
+          if (trackCount >= 4 && noteCount >= 4 && !completionRewardCard.classList.contains('is-unlocked')) {
             completionRewardCard.classList.add('is-unlocked');
             SoundFX.playCompletionFanfare();
-            PandaLock.showToast('All 4 Mixtape tracks explored! Level 3 Reward Unlocked 🏆', '🎉');
+            PandaLock.completeLevel(3);
+            PandaLock.showToast('All 4 tracks played & liner notes read! Level 3 Reward Unlocked 🏆', '🎉');
             setTimeout(() => {
               completionRewardCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
             }, 500);
