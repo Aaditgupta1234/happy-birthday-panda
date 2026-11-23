@@ -157,20 +157,21 @@
                   src="../assets/mag1.jpg" 
                   alt="Bestie Memory 1" 
                   class="polaroid-img"
-                  onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
+                  onload="if(this.nextElementSibling) this.nextElementSibling.style.display='none';"
+                  onerror="this.style.display='none'; if(this.nextElementSibling) this.nextElementSibling.style.display='flex';"
                 >
-                <div class="photo-placeholder">
+                <div class="photo-placeholder" style="display: none;">
                   <span class="ph-icon">📸</span>
                   <span class="ph-text">[Drop photo: assets/mag1.jpg]</span>
                   <span class="ph-hint">Our Origin Story Photo</span>
                 </div>
                 <div class="polaroid-caption">
-                  [EDIT HERE: "Where the chaos started — pretending to be normal!"]
+                  "Day 1 of acting normal — spoiler: it didn't last long 😂"
                 </div>
               </div>
 
-              <p class="mag-body-text" style="font-size: 0.78rem; color: var(--panda-muted); margin-top: 0.4rem;">
-                [EDIT HERE: Write a quick 2-line memory about the photo above or how your friendship first started.]
+              <p class="mag-body-text" style="font-size: 0.74rem; line-height: 1.38; color: var(--panda-charcoal); margin-top: 0.35rem; text-align: left;">
+                Who knew one random conversation would turn into endless late-night talks, non-stop roasting, and the best friendship ever? Easily one of my favorite chapters.
               </p>
             </div>
           </div>
@@ -191,25 +192,25 @@
               <h3 class="mag-page-title">The Panda Survival Guide</h3>
               <p class="mag-page-sub">Top 5 Rules of Being Unhinged Together</p>
 
-              <div style="display: flex; flex-direction: column; gap: 0.5rem; margin-top: 0.4rem;">
+              <div style="display: flex; flex-direction: column; gap: 0.35rem; margin-top: 0.35rem;">
                 <div class="glossary-card">
                   <div class="glossary-term">Rule #1: The Mutual Alibi</div>
-                  <div class="glossary-def">[EDIT HERE: If one of us does something silly, the other must act like it was totally intentional.]</div>
+                  <div class="glossary-def">If one of us does something completely ridiculous, the other must back it up with a straight face like it was 100% planned.</div>
                 </div>
 
                 <div class="glossary-card">
                   <div class="glossary-term">Rule #2: The Meme Tax</div>
-                  <div class="glossary-def">[EDIT HERE: Sending 10 consecutive reels at midnight without explanation is a valid love language.]</div>
+                  <div class="glossary-def">Spamming 10 reels at 1 AM with zero context is an official form of bestie communication.</div>
                 </div>
 
                 <div class="glossary-card">
                   <div class="glossary-term">Rule #3: The 45-Minute "Quick" Debrief</div>
-                  <div class="glossary-def">[EDIT HERE: Every minor event requires a detailed dramatic reenactment.]</div>
+                  <div class="glossary-def">No story is ever told in two minutes—every minor incident requires full dramatic voice acting.</div>
                 </div>
 
                 <div class="glossary-card">
                   <div class="glossary-term">Rule #4: Food Sharing Immunity</div>
-                  <div class="glossary-def">[EDIT HERE: "I'm not hungry" actually means "I'm eating half your fries."]</div>
+                  <div class="glossary-def">"I'm not really hungry" legally translates to "I'm taking half of yours anyway."</div>
                 </div>
               </div>
             </div>
@@ -227,23 +228,23 @@
 
               <div style="display: flex; flex-direction: column; gap: 0.6rem; margin-top: 0.4rem;">
                 <div class="glossary-card" style="border-left-color: var(--gold-metallic);">
-                  <div class="glossary-term">1. [EDIT HERE: "That One Thing..."]</div>
+                  <div class="glossary-term">1. "Eye Contact Across the Room"</div>
                   <div class="glossary-def">
-                    <strong>Definition:</strong> [EDIT HERE: Immediate burst of laughter without any words being spoken.]
+                    <strong>Definition:</strong> Instant telepathic communication followed by an uncontrollable burst of laughter without a single word spoken.
                   </div>
                 </div>
 
                 <div class="glossary-card" style="border-left-color: var(--rose-deep);">
-                  <div class="glossary-term">2. [EDIT HERE: "I Have News"]</div>
+                  <div class="glossary-term">2. "Sunn, Ek Baat Bataun?"</div>
                   <div class="glossary-def">
-                    <strong>Definition:</strong> [EDIT HERE: Drop everything. A situation of urgent comedic importance has just occurred.]
+                    <strong>Definition:</strong> Drop everything immediately—tea of historic, emergency-level importance is about to be spilled.
                   </div>
                 </div>
 
                 <div class="glossary-card" style="border-left-color: var(--gold-metallic);">
-                  <div class="glossary-term">3. [EDIT HERE: "Quick 2-Minute Question"]</div>
+                  <div class="glossary-term">3. "Bas 5 Minute Ki Baat Hai"</div>
                   <div class="glossary-def">
-                    <strong>Definition:</strong> [EDIT HERE: A 90-minute philosophical debate about snacks, people, or future travel plans.]
+                    <strong>Definition:</strong> A minimum 90-minute TED Talk covering life, random overthinking, snacks, and plans we will probably reschedule twice.
                   </div>
                 </div>
               </div>
@@ -277,20 +278,22 @@
                   src="../assets/mag2.jpg" 
                   alt="Bestie Memory 2" 
                   class="polaroid-img"
-                  onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
+                  style="height: 205px; object-position: center top;"
+                  onload="if(this.nextElementSibling) this.nextElementSibling.style.display='none';"
+                  onerror="this.style.display='none'; if(this.nextElementSibling) this.nextElementSibling.style.display='flex';"
                 >
-                <div class="photo-placeholder">
+                <div class="photo-placeholder" style="display: none; height: 205px;">
                   <span class="ph-icon">📸</span>
                   <span class="ph-text">[Drop photo: assets/mag2.jpg]</span>
                   <span class="ph-hint">Funny / Candid Moment</span>
                 </div>
                 <div class="polaroid-caption">
-                  [EDIT HERE: "Exhibit A: The chaos was 100% mutual."]
+                  "Exhibit A: Zero regrets, 100% partner-in-crime energy 🐼✌️"
                 </div>
               </div>
 
-              <p class="mag-body-text" style="font-size: 0.78rem; margin-top: 0.5rem;">
-                [EDIT HERE: Add a witty 2-3 sentence recollection of a funny memory, trip, or late-night misadventure.]
+              <p class="mag-body-text" style="font-size: 0.78rem; line-height: 1.45; color: var(--panda-charcoal); margin-top: 0.45rem;">
+                Proof that whenever we are left unsupervised, boring days simply cease to exist. From random poses to laughing at things that aren't even funny, this frame sums up our bestie chaos perfectly.
               </p>
             </div>
 
@@ -312,20 +315,22 @@
                   src="../assets/mag3.jpg" 
                   alt="Bestie Memory 3" 
                   class="polaroid-img"
-                  onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
+                  style="height: 205px; object-position: center top;"
+                  onload="if(this.nextElementSibling) this.nextElementSibling.style.display='none';"
+                  onerror="this.style.display='none'; if(this.nextElementSibling) this.nextElementSibling.style.display='flex';"
                 >
-                <div class="photo-placeholder">
+                <div class="photo-placeholder" style="display: none; height: 205px;">
                   <span class="ph-icon">📸</span>
                   <span class="ph-text">[Drop photo: assets/mag3.jpg]</span>
                   <span class="ph-hint">Unforgettable Adventure</span>
                 </div>
                 <div class="polaroid-caption">
-                  [EDIT HERE: "Nothing went according to plan, which made it iconic."]
+                  "Nothing went according to plan, which made it iconic."
                 </div>
               </div>
 
-              <p class="mag-body-text" style="font-size: 0.78rem; margin-top: 0.4rem;">
-                [EDIT HERE: Short note about a time things went crazy and you two just laughed through it all.]
+              <p class="mag-body-text" style="font-size: 0.78rem; line-height: 1.45; color: var(--panda-charcoal); margin-top: 0.45rem;">
+                Our best plans are the ones we completely improvise—and honestly, nobody pulls off last-minute chaos, terrible poses, and non-stop laughing better than us.
               </p>
             </div>
           </div>

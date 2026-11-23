@@ -1127,7 +1127,15 @@
       }
 
       // 3. Wax Seal Unfolding Interaction
-      function handleOpenWaxSeal() {
+      let isLetterOpened = false;
+
+      function handleOpenWaxSeal(e) {
+        if (e) {
+          e.stopPropagation();
+        }
+        if (isLetterOpened) return;
+        isLetterOpened = true;
+
         // Play unfolding sparkle sound effect
         SoundFX.playLetterOpenSound();
 
@@ -1136,6 +1144,7 @@
 
         waxSealBtn.style.transform = 'scale(0.85) rotate(15deg)';
         waxSealBtn.style.opacity = '0.5';
+        waxSealBtn.style.pointerEvents = 'none';
 
         setTimeout(() => {
           envelopeClosed.style.display = 'none';
@@ -1144,11 +1153,11 @@
         }, 400);
       }
 
-      waxSealBtn.addEventListener('click', handleOpenWaxSeal);
+      waxSealBtn.addEventListener('click', (e) => {
+        handleOpenWaxSeal(e);
+      });
       envelopeClosed.addEventListener('click', (e) => {
-        if (e.target !== waxSealBtn) {
-          handleOpenWaxSeal();
-        }
+        handleOpenWaxSeal(e);
       });
 
       // 4. Complete Level & Return to Map
