@@ -74,7 +74,9 @@ const PandaLock = (function () {
     }
   ];
 
+  const PREVIEW_PASSWORD = "aadit";
   const PREVIEW_STORAGE_KEY = 'panda_creator_preview_mode';
+  const PREVIEW_AUTH_KEY = 'panda_creator_authorized';
   const VAULT_STORAGE_KEY = 'panda_vault_unlocked';
   const APPLICATION_STORAGE_KEY = 'panda_application_accepted';
   
@@ -522,15 +524,11 @@ const PandaLock = (function () {
 
   /**
    * Helper: Check if Creator Preview Mode is active
+   * Strictly requires verified password in sessionStorage ('panda_creator_authorized' === 'true')
    */
   function isPreviewMode() {
     try {
-      const urlParams = new URLSearchParams(window.location.search);
-      if (urlParams.get('preview') === 'true' || urlParams.get('preview') === '1') {
-        sessionStorage.setItem(PREVIEW_STORAGE_KEY, 'true');
-        return true;
-      }
-      return sessionStorage.getItem(PREVIEW_STORAGE_KEY) === 'true';
+      return sessionStorage.getItem(PREVIEW_AUTH_KEY) === 'true';
     } catch (e) {
       return false;
     }
@@ -541,8 +539,10 @@ const PandaLock = (function () {
    */
   function setPreviewMode(enable) {
     if (enable) {
+      sessionStorage.setItem(PREVIEW_AUTH_KEY, 'true');
       sessionStorage.setItem(PREVIEW_STORAGE_KEY, 'true');
     } else {
+      sessionStorage.removeItem(PREVIEW_AUTH_KEY);
       sessionStorage.removeItem(PREVIEW_STORAGE_KEY);
       const url = new URL(window.location.href);
       if (url.searchParams.has('preview')) {
@@ -556,6 +556,7 @@ const PandaLock = (function () {
    * Complete exit from preview mode and reload
    */
   function exitPreviewMode() {
+    sessionStorage.removeItem(PREVIEW_AUTH_KEY);
     sessionStorage.removeItem(PREVIEW_STORAGE_KEY);
     for (let i = 1; i <= 5; i++) {
       sessionStorage.removeItem(`panda_preview_level_${i}_completed`);
@@ -563,6 +564,213 @@ const PandaLock = (function () {
     const url = new URL(window.location.href);
     url.searchParams.delete('preview');
     window.location.href = url.pathname + (url.search ? url.search : '');
+  }
+
+  /**
+   * Celebratory ascending fanfare chime when Creator Preview unlocks
+   */
+  function playPreviewUnlockChime() {
+    try {
+      const AudioCtx = window.AudioContext || window.webkitAudioContext;
+      if (!AudioCtx) return;
+      const ctx = new AudioCtx();
+      if (ctx.state === 'suspended') ctx.resume();
+
+      const now = ctx.currentTime;
+      const fanfare = [
+        { f: 523.25, t: 0.0, d: 0.18 },  // C5
+        { f: 659.25, t: 0.1, d: 0.18 },  // E5
+        { f: 783.99, t: 0.2, d: 0.22 },  // G5
+        { f: 1046.50, t: 0.32, d: 0.7 }  // C6
+      ];
+
+      fanfare.forEach(n => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(n.f, now + n.t);
+
+        gain.gain.setValueAtTime(0.001, now + n.t);
+        gain.gain.linearRampToValueAtTime(0.28, now + n.t + 0.02);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + n.t + n.d);
+
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+
+        osc.start(now + n.t);
+        osc.stop(now + n.t + n.d + 0.05);
+      });
+    } catch (e) {
+      console.warn('AudioContext error', e);
+    }
+  }
+
+  /**
+   * Open sleek Luxe Panda modal dialog (#previewAuthModal)
+   * Strictly protected by password PREVIEW_PASSWORD ("aadit")
+   */
+  function openPreviewAuthModal(options = {}) {
+    let modal = document.getElementById('previewAuthModal');
+    if (!modal) {
+      modal = document.createElement('div');
+      modal.className = 'preview-auth-modal-overlay';
+      modal.id = 'previewAuthModal';
+      modal.setAttribute('role', 'dialog');
+      modal.setAttribute('aria-modal', 'true');
+      modal.setAttribute('aria-labelledby', 'previewAuthTitle');
+      modal.innerHTML = `
+        <div class="preview-auth-card">
+          <div class="preview-auth-badge">👑 CREATOR ACCESS</div>
+          <h3 class="preview-auth-title" id="previewAuthTitle">👑 Creator Mode Verification — Enter Admin Password:</h3>
+          <p class="preview-auth-sub">Enter the master secret code to unlock all 5 levels for testing & preview.</p>
+          
+          <div class="preview-auth-input-wrap">
+            <input type="password" id="previewPasswordInput" class="preview-auth-input" placeholder="Admin password..." autocomplete="off" />
+            <button type="button" id="previewToggleEye" class="preview-eye-btn" title="Toggle visibility">👁️</button>
+          </div>
+          
+          <div class="preview-auth-error" id="previewAuthError"></div>
+
+          <div class="preview-auth-btn-row">
+            <button type="button" id="btnCancelPreview" class="btn-preview-cancel">Cancel</button>
+            <button type="button" id="btnUnlockPreview" class="btn-preview-unlock">Unlock Preview ✨</button>
+          </div>
+        </div>
+      `;
+      document.body.appendChild(modal);
+
+      const eyeBtn = modal.querySelector('#previewToggleEye');
+      const passInput = modal.querySelector('#previewPasswordInput');
+      if (eyeBtn && passInput) {
+        eyeBtn.addEventListener('click', () => {
+          if (passInput.type === 'password') {
+            passInput.type = 'text';
+            eyeBtn.textContent = '🙈';
+          } else {
+            passInput.type = 'password';
+            eyeBtn.textContent = '👁️';
+          }
+        });
+      }
+    }
+
+    const input = modal.querySelector('#previewPasswordInput');
+    const errEl = modal.querySelector('#previewAuthError');
+    const unlockBtn = modal.querySelector('#btnUnlockPreview');
+    const cancelBtn = modal.querySelector('#btnCancelPreview');
+
+    if (input) {
+      input.value = '';
+      input.classList.remove('shake-animation');
+    }
+    if (errEl) {
+      errEl.textContent = '';
+    }
+
+    modal.classList.add('is-active');
+    setTimeout(() => {
+      if (input) {
+        input.focus();
+      }
+    }, 120);
+
+    const closeModal = () => {
+      modal.classList.remove('is-active');
+    };
+
+    const handleSuccess = () => {
+      sessionStorage.setItem(PREVIEW_AUTH_KEY, 'true');
+      sessionStorage.setItem(PREVIEW_STORAGE_KEY, 'true');
+      playPreviewUnlockChime();
+      showToast('👑 Creator Preview Mode Activated! All 5 levels unlocked.', '🎉');
+      closeModal();
+      initPreviewBanner();
+
+      // Automatically unhide gates if present
+      const appGate = document.getElementById('applicationGate');
+      if (appGate) appGate.style.display = 'none';
+      document.body.classList.remove('application-gate-active');
+
+      const vaultCard = document.getElementById('vaultGateCard');
+      const countdownMap = document.getElementById('countdownMap');
+      if (vaultCard) vaultCard.style.display = 'none';
+      if (countdownMap) {
+        countdownMap.classList.remove('vault-hidden');
+        countdownMap.classList.add('vault-revealed');
+      }
+
+      if (options.onSuccess) {
+        options.onSuccess();
+      } else {
+        setTimeout(() => {
+          window.location.reload();
+        }, 750);
+      }
+    };
+
+    const handleFailure = () => {
+      playCuteBoopSound();
+      if (input) {
+        input.classList.remove('shake-animation');
+        void input.offsetWidth;
+        input.classList.add('shake-animation');
+        input.select();
+        input.focus();
+      }
+      if (errEl) {
+        errEl.textContent = 'Access denied — Panda eyes only! 🐼';
+      }
+      showToast('Access denied — Panda eyes only! 🐼', '⛔');
+
+      // If ?preview=true was in the URL and entered wrong password, strip it so locked levels stay locked
+      const url = new URL(window.location.href);
+      if (url.searchParams.has('preview')) {
+        url.searchParams.delete('preview');
+        window.history.replaceState({}, document.title, url.pathname + (url.search ? url.search : ''));
+      }
+    };
+
+    const handleCancel = () => {
+      closeModal();
+      // If ?preview=true was in the URL and she cancels, strip ?preview=true from the URL so locked levels stay locked
+      const url = new URL(window.location.href);
+      if (url.searchParams.has('preview')) {
+        url.searchParams.delete('preview');
+        window.history.replaceState({}, document.title, url.pathname + (url.search ? url.search : ''));
+      }
+      if (options.onCancel) {
+        options.onCancel();
+      }
+    };
+
+    const submitAuth = () => {
+      const entered = (input ? input.value : '').trim();
+      if (entered.toLowerCase() === PREVIEW_PASSWORD.toLowerCase()) {
+        handleSuccess();
+      } else {
+        handleFailure();
+      }
+    };
+
+    unlockBtn.onclick = (e) => {
+      e.preventDefault();
+      submitAuth();
+    };
+
+    cancelBtn.onclick = (e) => {
+      e.preventDefault();
+      handleCancel();
+    };
+
+    input.onkeydown = (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        submitAuth();
+      } else if (e.key === 'Escape') {
+        e.preventDefault();
+        handleCancel();
+      }
+    };
   }
 
   /**
@@ -727,15 +935,15 @@ const PandaLock = (function () {
       mascotTapCount = 0;
       const current = isPreviewMode();
       if (!current) {
-        setPreviewMode(true);
-        showToast('👑 Creator Preview Mode Activated! All 5 levels unlocked.', '🎉');
+        openPreviewAuthModal({
+          onSuccess: () => {
+            window.location.reload();
+          }
+        });
       } else {
-        setPreviewMode(false);
+        exitPreviewMode();
         showToast('Creator Preview Mode Deactivated.', '🔒');
       }
-      setTimeout(() => {
-        window.location.reload();
-      }, 900);
     }
   }
 
@@ -785,6 +993,29 @@ const PandaLock = (function () {
     if (!level) return;
 
     if (!isLevelUnlocked(levelId)) {
+      const urlParams = new URLSearchParams(window.location.search);
+      const hasPreview = urlParams.get('preview') === 'true' || urlParams.get('preview') === '1';
+
+      if (hasPreview && !isPreviewMode()) {
+        const handleAuthOnLevel = () => {
+          openPreviewAuthModal({
+            onSuccess: () => {
+              window.location.reload();
+            },
+            onCancel: () => {
+              window.location.replace(`../index.html?locked=${levelId}`);
+            }
+          });
+        };
+
+        if (document.readyState === 'loading') {
+          document.addEventListener('DOMContentLoaded', handleAuthOnLevel);
+        } else {
+          handleAuthOnLevel();
+        }
+        return false;
+      }
+
       // Redirect immediately to map hub
       window.location.replace(`../index.html?locked=${levelId}`);
       return false;
@@ -841,8 +1072,22 @@ const PandaLock = (function () {
     initPreviewBanner();
     initBackgroundParticles();
 
-    // Check if redirected because of locked direct access
+    // Check if ?preview=true was in the URL and user is not yet authorized
     const urlParams = new URLSearchParams(window.location.search);
+    const hasPreviewParam = urlParams.get('preview') === 'true' || urlParams.get('preview') === '1';
+
+    if (hasPreviewParam && !isPreviewMode()) {
+      openPreviewAuthModal({
+        onSuccess: () => {
+          window.location.reload();
+        },
+        onCancel: () => {
+          // Locked levels remain locked; ?preview=true is stripped automatically
+        }
+      });
+    }
+
+    // Check if redirected because of locked direct access
     const lockedParam = urlParams.get('locked');
     if (lockedParam) {
       const lockedLevel = LEVELS_CONFIG.find(l => l.id === parseInt(lockedParam, 10));
@@ -1130,10 +1375,12 @@ const PandaLock = (function () {
 
   // Public API
   return {
+    PREVIEW_PASSWORD,
     LEVELS_CONFIG,
     isPreviewMode,
     setPreviewMode,
     exitPreviewMode,
+    openPreviewAuthModal,
     isApplicationAccepted,
     initApplicationGate,
     handleApplicationNo,

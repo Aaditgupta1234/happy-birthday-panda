@@ -439,6 +439,27 @@
 
   </div>
 
+  <!-- Creator Preview Mode Authentication Modal Dialog -->
+  <div class="preview-auth-modal-overlay" id="previewAuthModal" role="dialog" aria-modal="true" aria-labelledby="previewAuthTitle">
+    <div class="preview-auth-card">
+      <div class="preview-auth-badge">👑 CREATOR ACCESS</div>
+      <h3 class="preview-auth-title" id="previewAuthTitle">👑 Creator Mode Verification — Enter Admin Password:</h3>
+      <p class="preview-auth-sub">Enter the master secret code to unlock all 5 levels for testing & preview.</p>
+      
+      <div class="preview-auth-input-wrap">
+        <input type="password" id="previewPasswordInput" class="preview-auth-input" placeholder="Admin password..." autocomplete="off" />
+        <button type="button" id="previewToggleEye" class="preview-eye-btn" title="Toggle visibility">👁️</button>
+      </div>
+      
+      <div class="preview-auth-error" id="previewAuthError"></div>
+
+      <div class="preview-auth-btn-row">
+        <button type="button" id="btnCancelPreview" class="btn-preview-cancel">Cancel</button>
+        <button type="button" id="btnUnlockPreview" class="btn-preview-unlock">Unlock Preview ✨</button>
+      </div>
+    </div>
+  </div>
+
   <!-- Toast Container -->
   <div class="panda-toast-container"></div>
 
