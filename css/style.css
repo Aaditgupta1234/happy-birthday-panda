@@ -4,8 +4,6 @@
           and panda charcoal black.
    ======================================================== */
 
-@import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600;700&family=Playfair+Display:ital,wght@0,500;0,600;0,700;0,800;1,400&family=Poppins:wght@300;400;500;600;700&display=swap');
-
 :root {
   --bg-pearl: #FFF8FA;
   --bg-blush: #FFEEF4;
@@ -3933,6 +3931,11 @@ body {
 }
 
 /* Application Paper Letter Card */
+html:not(.fonts-ready) .application-card {
+  opacity: 0;
+  visibility: hidden;
+}
+
 .application-card {
   position: relative;
   max-width: 650px;
@@ -3953,7 +3956,10 @@ body {
     inset 0 0 0 6.5px rgba(212, 175, 55, 0.35);
   overflow: visible;
   transition: transform 0.4s ease, box-shadow 0.4s ease;
-  animation: appCardEntrance 0.75s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+  animation: appCardEntrance 0.65s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
 }
 
 @keyframes appCardEntrance {

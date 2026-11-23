@@ -85,6 +85,9 @@ const PandaLock = (function () {
   // In-memory vault state: resets to locked on every page refresh/reload
   let isVaultSessionUnlocked = false;
 
+  // In-memory application state: resets to showing application on every page refresh/reload
+  let isApplicationSessionAccepted = false;
+
   // "Birthday Ki Application" state
   let noClickCount = 0;
   const NO_PLEAS = [
@@ -106,15 +109,12 @@ const PandaLock = (function () {
 
   /**
    * Helper: Check if Birthday Ki Application has been accepted
-   * Bypassed automatically in Creator Preview Mode
+   * Resets every time the page is refreshed/reloaded.
+   * Bypassed automatically in Creator Preview Mode.
    */
   function isApplicationAccepted() {
     if (isPreviewMode()) return true;
-    try {
-      return localStorage.getItem(APPLICATION_STORAGE_KEY) === 'true';
-    } catch (e) {
-      return false;
-    }
+    return isApplicationSessionAccepted;
   }
 
   /**
@@ -292,14 +292,14 @@ const PandaLock = (function () {
    * Celebratory chime, confetti, saves acceptance, fades out gate
    */
   function handleApplicationYes() {
+    isApplicationSessionAccepted = true;
+    try {
+      localStorage.removeItem(APPLICATION_STORAGE_KEY);
+      sessionStorage.removeItem(APPLICATION_STORAGE_KEY);
+    } catch (e) {}
+
     playApplicationCelebrateSound();
     fireApplicationConfetti();
-
-    try {
-      localStorage.setItem(APPLICATION_STORAGE_KEY, 'true');
-    } catch (e) {
-      console.warn('Could not save application state', e);
-    }
 
     showToast('Application Accepted! 🎉 Welcome to your Birthday Odyssey, Panda 🐼✨', '💖');
 
@@ -322,15 +322,26 @@ const PandaLock = (function () {
 
   /**
    * Initialize Application Gate on Hub Load
+   * Every page refresh resets to showing the application gate
    */
   function initApplicationGate() {
+    try {
+      localStorage.removeItem(APPLICATION_STORAGE_KEY);
+      sessionStorage.removeItem(APPLICATION_STORAGE_KEY);
+    } catch (e) {}
+
     const gate = document.getElementById('applicationGate');
+    const card = document.getElementById('applicationCard');
     if (!gate) return;
 
     if (isApplicationAccepted()) {
       gate.style.display = 'none';
     } else {
       gate.style.display = 'flex';
+      gate.classList.remove('gate-fade-out');
+      if (card) {
+        card.classList.remove('app-card-accepted');
+      }
       noClickCount = 0;
       const noBtn = document.getElementById('appNoBtn');
       const yesBtn = document.getElementById('appYesBtn');
